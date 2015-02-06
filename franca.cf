@@ -1,0 +1,56 @@
+Prog.	Program	::= [Def] ;
+
+-- definitions
+
+
+DInterface.	Def ::= "interface" Id "{" IBody "}" ;
+--separator Def "" ;
+terminator Def "" ;
+
+DIBody.	IBody ::= [IBodyItem] ;
+--separator IBodyItem "" ;
+terminator IBodyItem "" ;
+
+
+DInMethod.	IBodyItem ::= "method" Id "{" "in" "{" [DInVari] "}" "}" ;
+DOutMethod.	IBodyItem ::= "method" Id "{" "out" "{" [DOutVari] "}" "}" ;
+DInOutMethod.	IBodyItem ::= "method" Id "{" "in" "{" [DInVari] "}" "out" "{" [DOutVari] "}" "}" ;
+
+DInVar.		DInVari ::= Type Id ;
+DOutVar.	DOutVari ::= Type Id ;
+DVar.		DVari ::= Type Id ;
+--DVarArr.	DVari ::= Type "[]" Id ;
+--separator DVari "" ;
+terminator DVari "" ;
+terminator DInVari "" ;
+terminator DOutVari "" ;
+
+
+-- Franca IDL types
+
+DUIntEight.		Type ::= "UInt8" ;
+DIntEight.		Type ::= "Int8" ;
+DUIntSixteen.		Type ::= "UInt16" ;
+DIntSixteen.		Type ::= "Int16" ;
+DUIntThirtyTwo.		Type ::= "UInt32" ;
+DIntThirtyTwo.		Type ::= "Int32" ;
+DUIntSixtyFour.		Type ::= "UInt64" ;
+DIntSixtyFour.		Type ::= "Int64" ;
+DBoolean.		Type ::= "Boolean" ;
+DFloat.			Type ::= "Float" ;
+DDouble.		Type ::= "Double" ;
+DString.		Type ::= "String" ;
+DByteBuffer.		Type ::= "ByteBuffer" ;
+
+
+
+-- identifiers
+
+token Id (letter (letter | digit | '_')*) ;
+
+
+-- comments
+
+comment "//" ;
+comment "/*" "*/" ;
+comment "<**" "**>" ;

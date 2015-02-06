@@ -1,0 +1,26 @@
+interface FrancaTest1 {
+
+	
+method first {
+	in {
+		String varInput1
+		String varInput2
+	}
+	out {
+		Float varOutput
+		
+		
+	}
+}
+method first {
+	in {
+		Boolean var2Input1
+	}
+	out {
+		Double var2Output
+	}
+}
+
+
+// put type definitions here
+}
