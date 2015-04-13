@@ -1,0 +1,75 @@
+package Francaccodegen
+
+interface example2 {
+
+version {
+	major 1
+	minor 2
+}
+	
+// This is the first method. It takes two strings as input and outputs a boolean.
+method first {
+	in
+	{
+		String varInput1
+		String varInput2
+	}
+	out
+	{
+		Boolean varOutput
+	}
+}
+
+	
+// This is the second method. It does not take any in- or out-parameters.
+
+method second {
+}
+
+
+/* This is the third method. It takes several in-paramenter but returns only one out-parameter. */
+method third {
+	in
+	{
+		UInt8 varInput1
+		UInt16 varInput2
+		Int16 varInput3
+		UInt32 varInput4
+		Int32 varInput5
+		UInt64 varInput6
+		Int64 varInput7
+		Double varInput8
+		String varInput9
+		Boolean varInput10
+	}
+	out
+	{
+		Boolean varOutput1
+	}
+}
+
+
+// This is a standard attribute (property).
+attribute Int32 theAttribute
+
+// This is a readonly attribute (property).
+attribute Int32 theReadOnlyAttribute readonly
+
+// This is a noSubscriptions attribute (property). Does not exist in standard D-Bus, will produce annotation.
+attribute Int32 theNoSubscriptionsAttribute noSubscriptions
+
+// This is a readonly noSubscriptions attribute (property). Does not exist in standard D-Bus, will produce annotation.
+attribute Int32 theNoSubscriptionsReadOnlyAttribute readonly noSubscriptions
+
+
+
+
+
+// This is a comment test.
+<** This is a...
+   ... second comment test. **>
+/* This is a...
+   ... third comment test. */
+
+
+}

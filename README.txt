@@ -28,7 +28,6 @@ XMLGenerator.H		Header file for XML generator.
 
 ---Compiling---
 
-bnfc -cpp_stl franca.cf
 make
 
 

@@ -88,6 +88,7 @@ GenerateDBusXML::~GenerateDBusXML(void)
 char* GenerateDBusXML::generate(Visitable *v)
 {
   _n_ = 0;
+  packageName = NULL;
   bufReset();
   v->accept(this);
   return buf_;
@@ -102,7 +103,6 @@ void GenerateDBusXML::visitProg(Prog* p)
 {
   render("<!DOCTYPE node PUBLIC \"-//freedesktop//DTD D-BUS Object Introspection 1.0//EN\"\n");
   render(" \"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd\">\n");
-  render("<node name=\"TODO NODE NAME HERE\">");
   increaseIndent();
   newIndLine();
   if(p->listdef_) {p->listdef_->accept(this);}
@@ -118,11 +118,44 @@ void GenerateDBusXML::visitProg(Prog* p)
 void GenerateDBusXML::visitDef(Def*p) {} //abstract class
 
 
+void GenerateDBusXML::visitDPackage(DPackage* p)
+{
+  // Should be one indent to the left
+  removeLine();
+  decreaseIndent();
+  newIndLine();
+
+  render("<node name=\"");
+  visitPackageName(p->id_);
+  render("\">");
+
+  increaseIndent();
+  newIndLine();
+}
+
+// Special case of visitIdent, since package name must be saved
+void GenerateDBusXML::visitPackageName(String s_)
+{
+  packageName = s_.c_str() ;
+  render(packageName);
+}
+
+
+
+
 //TODO fix this method
 void GenerateDBusXML::visitDInterface(DInterface* p)
 {
 
-  render("<interface name=\"TODO_PATH.");
+  render("<interface name=\"");
+
+  if(packageName != NULL) {
+    render(packageName);
+  } else {
+    //TODO Error
+
+  }
+  render(".");
   visitIdent(p->id_);
   render("\">");
   increaseIndent();
@@ -170,6 +203,22 @@ void GenerateDBusXML::visitListIBodyItem(ListIBodyItem *listibodyitem)
 //TODO fix this method. Needed?
 void GenerateDBusXML::visitIBodyItem(IBodyItem*p) {} //abstract class
 
+void GenerateDBusXML::visitDVersion(DVersion* p) {
+  // TODO what to do with version? <version> tag or ignore?
+}
+
+
+
+void GenerateDBusXML::visitDMethod(DMethod* p)
+{
+  render("<method name=\"");
+  visitIdent(p->id_);
+  render("\">");
+  newIndLine();
+  render("</method>");
+  newIndLine();
+}
+
 
 void GenerateDBusXML::visitDInMethod(DInMethod* p)
 {
@@ -179,7 +228,7 @@ void GenerateDBusXML::visitDInMethod(DInMethod* p)
   increaseIndent();
   newIndLine();
 
-  if(p->listdinvari_) {p->listdinvari_->accept(this);}
+  if(p->listinvari_) {p->listinvari_->accept(this);}
 
   removeLine();
   decreaseIndent();
@@ -197,7 +246,7 @@ void GenerateDBusXML::visitDOutMethod(DOutMethod* p)
   increaseIndent();
   newIndLine();
 
-  if(p->listdoutvari_) {p->listdoutvari_->accept(this);}
+  if(p->listoutvari_) {p->listoutvari_->accept(this);}
 
   removeLine();
   decreaseIndent();
@@ -216,9 +265,9 @@ void GenerateDBusXML::visitDInOutMethod(DInOutMethod* p)
   increaseIndent();
   newIndLine();
 
-  if(p->listdinvari_) {p->listdinvari_->accept(this);}
+  if(p->listinvari_) {p->listinvari_->accept(this);}
 
-  if(p->listdoutvari_) {p->listdoutvari_->accept(this);}
+  if(p->listoutvari_) {p->listoutvari_->accept(this);}
 
   removeLine();
   decreaseIndent();
@@ -227,8 +276,125 @@ void GenerateDBusXML::visitDInOutMethod(DInOutMethod* p)
   newIndLine();
 }
 
+
+  
+// Attributes
+
+void GenerateDBusXML::visitDAttrib(DAttrib *dattrib)
+{
+
+
+  render("<property access=\"readwrite\" name=\"");
+  visitIdent(dattrib->id_);
+  render("\" type=\"");
+  dattrib->type_->accept(this);
+  render("\">");
+
+  newIndLine();
+  render("</property>");
+  newIndLine();
+
+
+
+}
+
+void GenerateDBusXML::visitDAttribReadOnly(DAttribReadOnly *dattribreadonly)
+{
+
+
+  render("<property access=\"read\" name=\"");
+  visitIdent(dattribreadonly->id_);
+  render("\" type=\"");
+  dattribreadonly->type_->accept(this);
+  render("\">");
+
+  newIndLine();
+  render("</property>");
+  newIndLine();
+
+
+
+}
+
+void GenerateDBusXML::visitDAttribNoSub(DAttribNoSub *dattribnosub)
+{
+
+  render("<property access=\"readwrite\" name=\"");
+  visitIdent(dattribnosub->id_);
+  render("\" type=\"");
+  dattribnosub->type_->accept(this);
+  render("\">");
+  
+  increaseIndent();
+  newIndLine();
+
+  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.NoSubscriptions\" value=\"True\"/>");
+  
+  removeLine();
+  decreaseIndent();
+  newIndLine();
+
+
+  render("</property>");
+  newIndLine();
+
+
+
+
+}
+
+void GenerateDBusXML::visitDAttribReadOnlyNoSub(DAttribReadOnlyNoSub *dattribreadonlynosub)
+{
+  render("<property access=\"read\" name=\"");
+  visitIdent(dattribreadonlynosub->id_);
+  render("\" type=\"");
+  dattribreadonlynosub->type_->accept(this);
+  render("\">");
+  
+  increaseIndent();
+  newIndLine();
+
+  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.NoSubscriptions\" value=\"True\"/>");
+  
+  removeLine();
+  decreaseIndent();
+  newIndLine();
+
+
+  render("</property>");
+  newIndLine();
+
+
+}
+
+void GenerateDBusXML::visitDAttribReadOnlyNoSub2(DAttribReadOnlyNoSub2 *dattribreadonlynosub2)
+{
+
+  // TODO Franca does not allow readOnly to be after noSubscriptions. Produce error instead of code!
+  render("<property access=\"read\" name=\"");
+  visitIdent(dattribreadonlynosub2->id_);
+  render("\" type=\"");
+  dattribreadonlynosub2->type_->accept(this);
+  render("\">");
+  
+  increaseIndent();
+  newIndLine();
+
+  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.NoSubscriptions\" value=\"True\"/>");
+  
+  removeLine();
+  decreaseIndent();
+  newIndLine();
+
+
+  render("</property>");
+  newIndLine();
+
+}
+
+
 //TODO fix this method. Needed?
-void GenerateDBusXML::visitDInVari(DInVari*p) {} //abstract class
+void GenerateDBusXML::visitInVari(InVari*p) {} //abstract class
 
 //TODO fix this method
 void GenerateDBusXML::visitDInVar(DInVar* p)
@@ -249,7 +415,7 @@ void GenerateDBusXML::visitDInVar(DInVar* p)
 
 
 //TODO fix this method. Needed?
-void GenerateDBusXML::visitDOutVari(DOutVari*p) {} //abstract class
+void GenerateDBusXML::visitOutVari(OutVari*p) {} //abstract class
 
 //TODO fix this method
 void GenerateDBusXML::visitDOutVar(DOutVar* p)
@@ -269,7 +435,7 @@ void GenerateDBusXML::visitDOutVar(DOutVar* p)
 
 
 //TODO fix this method. Needed?
-void GenerateDBusXML::visitDVari(DVari*p) {} //abstract class
+void GenerateDBusXML::visitVari(Vari*p) {} //abstract class
 
 
 void GenerateDBusXML::visitDVar(DVar* p)
@@ -280,9 +446,9 @@ void GenerateDBusXML::visitDVar(DVar* p)
 
 
 
-void GenerateDBusXML::visitListDVari(ListDVari *listdvari)
+void GenerateDBusXML::visitListVari(ListVari *listvari)
 {
-  for (ListDVari::const_iterator i = listdvari->begin() ; i != listdvari->end() ; ++i)
+  for (ListVari::const_iterator i = listvari->begin() ; i != listvari->end() ; ++i)
   {
     (*i)->accept(this);
   }
@@ -290,9 +456,9 @@ void GenerateDBusXML::visitListDVari(ListDVari *listdvari)
 
 
 
-void GenerateDBusXML::visitListDInVari(ListDInVari *listdinvari)
+void GenerateDBusXML::visitListInVari(ListInVari *listinvari)
 {
-  for (ListDInVari::const_iterator i = listdinvari->begin() ; i != listdinvari->end() ; ++i)
+  for (ListInVari::const_iterator i = listinvari->begin() ; i != listinvari->end() ; ++i)
   {
     (*i)->accept(this);
 
@@ -300,9 +466,9 @@ void GenerateDBusXML::visitListDInVari(ListDInVari *listdinvari)
 }
 
 
-void GenerateDBusXML::visitListDOutVari(ListDOutVari *listdoutvari)
+void GenerateDBusXML::visitListOutVari(ListOutVari *listoutvari)
 {
-  for (ListDOutVari::const_iterator i = listdoutvari->begin() ; i != listdoutvari->end() ; ++i)
+  for (ListOutVari::const_iterator i = listoutvari->begin() ; i != listoutvari->end() ; ++i)
   {
     (*i)->accept(this);
 

@@ -1,32 +1,57 @@
-Prog.	Program	::= [Def] ;
+
+-- Franca IDL grammar file
+-- Author	Jesper Lundqvist
+-- Version	0.2
+
+-- Usage: Use with BNFC software suite. See README file for instructions.
+
 
 -- definitions
+Prog.		Program	::= [Def] ;
 
-
+-- A Franca IDL file consist of a series of definitions.
+DPackage.	Def ::= "package" Id ;
 DInterface.	Def ::= "interface" Id "{" IBody "}" ;
---separator Def "" ;
 terminator Def "" ;
 
+
+-- Interfaces consist of a number of interface body items.
 DIBody.	IBody ::= [IBodyItem] ;
---separator IBodyItem "" ;
 terminator IBodyItem "" ;
 
 
-DInMethod.	IBodyItem ::= "method" Id "{" "in" "{" [DInVari] "}" "}" ;
-DOutMethod.	IBodyItem ::= "method" Id "{" "out" "{" [DOutVari] "}" "}" ;
-DInOutMethod.	IBodyItem ::= "method" Id "{" "in" "{" [DInVari] "}" "out" "{" [DOutVari] "}" "}" ;
+-- Methods are one kind of interface body item. They can have either in- or out-parameters, both, or none.
+DMethod.	IBodyItem ::= "method" Id "{" "}" ;
+DInMethod.	IBodyItem ::= "method" Id "{" "in" "{" [InVari] "}" "}" ;
+DOutMethod.	IBodyItem ::= "method" Id "{" "out" "{" [OutVari] "}" "}" ;
+DInOutMethod.	IBodyItem ::= "method" Id "{" "in" "{" [InVari] "}" "out" "{" [OutVari] "}" "}" ;
 
-DInVar.		DInVari ::= Type Id ;
-DOutVar.	DOutVari ::= Type Id ;
-DVar.		DVari ::= Type Id ;
---DVarArr.	DVari ::= Type "[]" Id ;
---separator DVari "" ;
-terminator DVari "" ;
-terminator DInVari "" ;
-terminator DOutVari "" ;
+-- Version is another interface body item.
+DVersion.	IBodyItem ::= "version" "{" "major" Integer "minor" Integer "}" ;
+
+
+-- Attributes are also an interface body item.
+-- Due to only two attribute flags being possible, the combinations are listed here separately to make code generation easier.
+DAttrib.		IBodyItem ::= "attribute" Type Id ;
+DAttribReadOnly.	IBodyItem ::= "attribute" Type Id "readonly" ;
+DAttribNoSub.		IBodyItem ::= "attribute" Type Id "noSubscriptions" ;
+DAttribReadOnlyNoSub.	IBodyItem ::= "attribute" Type Id "readonly" "noSubscriptions" ;
+-- This last one should probably be removed as standard Franca compiler does not accept it.
+DAttribReadOnlyNoSub2.	IBodyItem ::= "attribute" Type Id "noSubscriptions" "readonly" ;
+
+
+-- Parameters consist of a type and an id.
+DInVar.		InVari ::= Type Id ;
+DOutVar.	OutVari ::= Type Id ;
+DVar.		Vari ::= Type Id ;
+--DVarArr.	Vari ::= Type "[]" Id ;
+terminator Vari "" ;
+terminator InVari "" ;
+terminator OutVari "" ;
 
 
 -- Franca IDL types
+-- Note that Float, ByteBuffer and Int8 are not defined as D-Bus types in the D-Bus standard.
 
 DUIntEight.		Type ::= "UInt8" ;
 DIntEight.		Type ::= "Int8" ;
@@ -43,14 +68,13 @@ DString.		Type ::= "String" ;
 DByteBuffer.		Type ::= "ByteBuffer" ;
 
 
-
--- identifiers
-
+-- Identifiers
 token Id (letter (letter | digit | '_')*) ;
 
 
--- comments
-
+-- Regular comments
 comment "//" ;
 comment "/*" "*/" ;
+
+-- Structured comments. These will be implemented later; for now consider them regular comments.
 comment "<**" "**>" ;

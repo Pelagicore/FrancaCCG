@@ -17,6 +17,7 @@ class GenerateDBusXML : public Visitor
 {
  protected:
   int _n_, _i_;
+  const char* packageName;
   /* The following are simple heuristics for rendering terminals */
   /* You may wish to change them */
 
@@ -33,27 +34,43 @@ class GenerateDBusXML : public Visitor
   ~GenerateDBusXML(void);
   char* generate(Visitable* v);
 
+  void visitPackageName(String s_);
   void visitProgram(Program *p); /* abstract class */
   void visitProg(Prog *p);
   void visitDef(Def *p); /* abstract class */
+  void visitDPackage(DPackage *p);
   void visitDInterface(DInterface *p);
   void visitListDef(ListDef* p);
   void visitIBody(IBody *p); /* abstract class */
   void visitDIBody(DIBody *p);
   void visitListIBodyItem(ListIBodyItem* p);
   void visitIBodyItem(IBodyItem *p); /* abstract class */
+
+  void visitDVersion(DVersion *p);
+
+  void visitDMethod(DMethod *p);
   void visitDInMethod(DInMethod *p);
   void visitDOutMethod(DOutMethod *p);
   void visitDInOutMethod(DInOutMethod *p);
-  void visitDVari(DVari *p); /* abstract class */
+  
+  
+  void visitDAttrib(DAttrib* p);
+  void visitDAttribReadOnly(DAttribReadOnly* p);
+  void visitDAttribNoSub(DAttribNoSub* p);
+  void visitDAttribReadOnlyNoSub(DAttribReadOnlyNoSub* p);
+  void visitDAttribReadOnlyNoSub2(DAttribReadOnlyNoSub2* p);
+  
+  
+  
+  void visitVari(Vari *p); /* abstract class */
   void visitDVar(DVar *p);
-  void visitDInVari(DInVari *p); /* abstract class */
+  void visitInVari(InVari *p); /* abstract class */
   void visitDInVar(DInVar *p);
-  void visitDOutVari(DOutVari *p); /* abstract class */
+  void visitOutVari(OutVari *p); /* abstract class */
   void visitDOutVar(DOutVar *p);
-  void visitListDVari(ListDVari* p);
-  void visitListDInVari(ListDInVari* p);
-  void visitListDOutVari(ListDOutVari* p);
+  void visitListVari(ListVari* p);
+  void visitListInVari(ListInVari* p);
+  void visitListOutVari(ListOutVari* p);
   void visitType(Type *p); /* abstract class */
   void visitDUIntEight(DUIntEight *p);
   void visitDIntEight(DIntEight *p);

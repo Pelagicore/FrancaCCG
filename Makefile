@@ -2,7 +2,7 @@ CC = g++
 CCFLAGS = -g
 FLEX = flex
 BISON = bison
-all: RunFCCG
+all: 	RunFCCG
 
 clean:
 	rm -f *.o franca.dvi franca.aux franca.log 
@@ -10,8 +10,13 @@ clean:
 
 distclean:
 	 rm -f *.o Absyn.C Absyn.H Test.C Parser.C Parser.H Lexer.C Skeleton.C Skeleton.H Printer.C Printer.H franca.l franca.y franca.tex franca.dvi franca.aux franca.log franca.ps RunFCCG 
+	 rm -f *.xml
+	 rm -f *.bak
 
-RunFCCG: Absyn.o Lexer.o Parser.o Printer.o XMLGenerator.o GenerateXML.o
+bnfc:	
+	bnfc -cpp_stl franca.cf
+
+RunFCCG: bnfc Absyn.o Lexer.o Parser.o Printer.o XMLGenerator.o GenerateXML.o
 	@echo "Linking RunFCCG..."
 	${CC} ${CCFLAGS} *.o -o RunFCCG
 

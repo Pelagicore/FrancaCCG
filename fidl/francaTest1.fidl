@@ -1,0 +1,25 @@
+package Francaccodegen
+
+interface FrancaTest1 {
+
+version {
+	major 2
+	minor 4
+}
+	
+method first {
+	in {
+		String varInput1
+		UInt32 varInput2
+	}
+	out {
+		Int16 varOutput
+	}
+}
+// This is a comment test.
+<** This is a second comment test. **>
+/* This is a...
+   ... third comment test. */
+
+
+}

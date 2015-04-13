@@ -31,7 +31,7 @@ int main(int argc, char ** argv)
   // Output file for D-Bus XML Introspection
 
   char* givenFile = argv[1];
-  printf("%s \n", givenFile); 
+  //  printf("%s \n", givenFile); 
 
   // If source file has the format XYZ.fidl, name the output file XYZ.xml
   // Otherwise, if it is called XYZ*, name it XYZ*.xml
