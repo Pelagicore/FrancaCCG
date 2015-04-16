@@ -27,6 +27,7 @@ int main(int argc, char ** argv)
   else input = stdin;
   /* The default entry point is used. For other options see Parser.H */
 
+
   
   // Output file for D-Bus XML Introspection
 
@@ -42,6 +43,7 @@ int main(int argc, char ** argv)
     outputFilename.replace(found, 5, "");
   }
   outputFilename.append(".xml");
+  
   ofstream output;
   output.open(outputFilename.c_str());
   
@@ -58,12 +60,18 @@ int main(int argc, char ** argv)
     PrintAbsyn *p = new PrintAbsyn();
     printf("%s\n\n", p->print(parse_tree));
     printf("[D-Bus XML Introspection]\n");
-    GenerateDBusXML *g = new GenerateDBusXML();
+    GenerateDBusXML *g = new GenerateDBusXML();   
     printf("%s\n\n", g->generate(parse_tree));
-    //TODO
-    output << g->generate(parse_tree);
-    output.close();
+
+    //TODO shouldn't generate twice... save it instead.
+    printf("Done generating and printing D-Bus XML Introspection! Generating to file...\n");
     
+    GenerateDBusXML *g2 = new GenerateDBusXML();
+    output << g2->generate(parse_tree);
+    printf("Done. Closing file...\n");
+    output.close();
+    printf("Done. Finished generating D-Bus XML Introspection to file.\n");
+    printf("All done!\n");
     
     return 0;
   }

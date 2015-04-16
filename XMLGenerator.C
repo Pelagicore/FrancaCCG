@@ -63,6 +63,19 @@ void GenerateDBusXML::indent()
 
 
 
+void GenerateDBusXML::removeLastComma()
+{
+
+  while ((buf_[cur_ - 1] == ' ') || (buf_[cur_ - 2] == ','))
+  {
+    buf_[cur_ - 1] = 0;
+    buf_[cur_ - 2] = 0;
+    cur_--;
+    cur_--;
+  }
+
+}
+
 void GenerateDBusXML::removeLine()
 {
   while ((buf_[cur_ - 1] == '\n') || (buf_[cur_ - 1] == ' '))
@@ -77,6 +90,7 @@ GenerateDBusXML::GenerateDBusXML(void)
   _n_ = 0;
   buf_ = 0;
   bufReset();
+
 }
 
 
@@ -97,6 +111,11 @@ char* GenerateDBusXML::generate(Visitable *v)
 //TODO fix this method. Needed?
 void GenerateDBusXML::visitProgram(Program*p) {} //abstract class
 
+void GenerateDBusXML::visitEnum(Enum* t) {} //abstract class
+
+void GenerateDBusXML::visitEnumList(EnumList* t) {} //abstract class
+void GenerateDBusXML::visitEnumId(EnumId* t) {} //abstract class
+void GenerateDBusXML::visitTypeDefId(TypeDefId* t) {} //abstract class
 
 //TODO fix this method
 void GenerateDBusXML::visitProg(Prog* p)
@@ -116,6 +135,97 @@ void GenerateDBusXML::visitProg(Prog* p)
 
 //TODO fix this method. Needed?
 void GenerateDBusXML::visitDef(Def*p) {} //abstract class
+
+
+
+
+
+void GenerateDBusXML::visitDEnumDef(DEnumDef *denumdef)
+{
+  enum_empty = 1;
+
+  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.Enum\" value=\"name=");
+  visitId(denumdef->id_);
+  render(", members={");
+  
+  denumdef->enumlist_->accept(this);
+  
+  if(!enum_empty) {
+ 	removeLastComma();
+  }
+  
+  render("}\"/>");
+  newIndLine();
+}
+
+
+void GenerateDBusXML::visitDExtendedEnumDef(DExtendedEnumDef *dextendedenumdef)
+{
+  enum_empty = 1;
+ 
+
+  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.Enum\" value=\"name=");
+
+  dextendedenumdef->enumid_->accept(this);
+  
+  render(", extends=");
+  
+  visitId(dextendedenumdef->id_);
+  
+  render(", members={");
+  
+  dextendedenumdef->enumlist_->accept(this);
+  
+  if(!enum_empty) {
+ 	removeLastComma();
+  }
+  
+  render("}\"/>");
+  newIndLine();
+
+
+
+}
+
+
+
+void GenerateDBusXML::visitDEnum(DEnum *denum)
+{
+  /* Code For DEnum Goes Here */
+  enum_empty = 0;
+  visitId(denum->id_);
+  render(", ");
+
+}
+
+void GenerateDBusXML::visitDEnumValue(DEnumValue *denumvalue)
+{
+  /* Code For DEnumValue Goes Here */
+  enum_empty = 0;
+  visitId(denumvalue->id_);
+  render("=");
+  visitInteger(denumvalue->integer_);
+  render(", ");
+}
+
+
+void GenerateDBusXML::visitDEnumList(DEnumList *denumlist)
+{
+  /* Code For DEnumList Goes Here */
+
+  denumlist->listenum_->accept(this);
+
+}
+
+void GenerateDBusXML::visitDEnumIdent(DEnumIdent *denumident)
+{
+  /* Code For DEnumIdent Goes Here */
+
+  visitId(denumident->id_);
+
+}
+
+
 
 
 void GenerateDBusXML::visitDPackage(DPackage* p)
@@ -170,6 +280,17 @@ void GenerateDBusXML::visitDInterface(DInterface* p)
   newIndLine();
 
 }
+
+
+void GenerateDBusXML::visitDTypeCollection(DTypeCollection *dtypecollection)
+{
+  // TODO Handle type collections in a good way
+  
+
+  //visitId(dtypecollection->id_);
+  dtypecollection->ibody_->accept(this);
+}
+
 
 
 void GenerateDBusXML::visitListDef(ListDef *listdef)
@@ -475,6 +596,51 @@ void GenerateDBusXML::visitListOutVari(ListOutVari *listoutvari)
   }
 }
 
+void GenerateDBusXML::visitListEnum(ListEnum* listenum)
+{
+  for (ListEnum::iterator i = listenum->begin() ; i != listenum->end() ; ++i)
+  {
+    (*i)->accept(this);
+  }
+}
+
+
+void GenerateDBusXML::visitDTypeDef(DTypeDef *dtypedef)
+{
+  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.Typedef\" value=\"{");
+  dtypedef->typedefid_->accept(this);
+  render(", ");
+
+  dtypedef->type_->accept(this);
+  render("}\"/>");
+  newIndLine();
+
+}
+
+void GenerateDBusXML::visitDTypeDefCustom(DTypeDefCustom *dtypedefcustom)
+{
+  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.Typedef\" value=\"{");
+  dtypedefcustom->typedefid_->accept(this);
+  render(", ");
+
+  visitId(dtypedefcustom->id_);
+  render("}\"/>");
+  newIndLine();
+
+
+
+
+}
+
+void GenerateDBusXML::visitDTypeDefIdent(DTypeDefIdent *dtypedefident)
+{
+  /* Code For DTypeDefIdent Goes Here */
+
+  visitId(dtypedefident->id_);
+
+}
+
+
 
 //TODO fix this method. Needed?
 void GenerateDBusXML::visitType(Type*p) {} //abstract class
@@ -609,8 +775,6 @@ void GenerateDBusXML::visitId(String s_)
   const char *s = s_.c_str() ;
   render(s);
 }
-
-
 
 
 

@@ -18,6 +18,8 @@ class GenerateDBusXML : public Visitor
  protected:
   int _n_, _i_;
   const char* packageName;
+ 
+  
   /* The following are simple heuristics for rendering terminals */
   /* You may wish to change them */
 
@@ -28,6 +30,7 @@ class GenerateDBusXML : public Visitor
   void render(String s);
   void indent(void);
   //void backup(void);
+  void removeLastComma(void);
   void removeLine(void);
  public:
   GenerateDBusXML(void);
@@ -38,6 +41,9 @@ class GenerateDBusXML : public Visitor
   void visitProgram(Program *p); /* abstract class */
   void visitProg(Prog *p);
   void visitDef(Def *p); /* abstract class */
+  void visitEnum(Enum* p);
+  void visitEnumList(EnumList* p);
+  void visitEnumId(EnumId* p);
   void visitDPackage(DPackage *p);
   void visitDInterface(DInterface *p);
   void visitListDef(ListDef* p);
@@ -46,6 +52,14 @@ class GenerateDBusXML : public Visitor
   void visitListIBodyItem(ListIBodyItem* p);
   void visitIBodyItem(IBodyItem *p); /* abstract class */
 
+  void visitDEnumDef(DEnumDef* p);
+  void visitDEnum(DEnum* p);
+  void visitDEnumValue(DEnumValue* p);
+  void visitDEnumList(DEnumList* p);
+  void visitDExtendedEnumDef(DExtendedEnumDef* p);
+  void visitDEnumIdent(DEnumIdent* p);
+  
+  
   void visitDVersion(DVersion *p);
 
   void visitDMethod(DMethod *p);
@@ -71,6 +85,7 @@ class GenerateDBusXML : public Visitor
   void visitListVari(ListVari* p);
   void visitListInVari(ListInVari* p);
   void visitListOutVari(ListOutVari* p);
+  void visitDTypeDef(DTypeDef* p);
   void visitType(Type *p); /* abstract class */
   void visitDUIntEight(DUIntEight *p);
   void visitDIntEight(DIntEight *p);
@@ -85,15 +100,20 @@ class GenerateDBusXML : public Visitor
   void visitDDouble(DDouble *p);
   void visitDString(DString *p);
   void visitDByteBuffer(DByteBuffer *p);
-
-
+  void visitListEnum(ListEnum* p);
   void visitInteger(Integer i);
   void visitDouble(Double d);
   void visitChar(Char c);
   void visitString(String s);
   void visitIdent(String s);
-
   void visitId(String s);
+  
+  void visitDTypeDefIdent(DTypeDefIdent* p);
+  void visitTypeDefId(TypeDefId* p);
+  void visitDTypeDefCustom(DTypeDefCustom* p);
+
+  void visitDTypeCollection(DTypeCollection* p);
+
 
  protected:
   void inline bufAppend(const char* s)
@@ -146,6 +166,7 @@ class GenerateDBusXML : public Visitor
   }
   char *buf_;
   int cur_, buf_size;
+  bool enum_empty;
 };
 
 

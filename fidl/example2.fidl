@@ -1,13 +1,49 @@
 package Francaccodegen
 
+
+
+
+
+typeCollection MyTypes {
+
+	typedef MyInt is UInt32
+	typedef MySmallerInt is UInt16
+
+	enumeration MyNumbers {
+		One
+		Two
+		Three		
+	}
+}
+
+
+
 interface example2 {
 
 version {
 	major 1
 	minor 2
 }
+
+
+
 	
+// This is a standard attribute (property).
+attribute Int32 theAttribute
+
+// This is a readonly attribute (property).
+attribute Int32 theReadOnlyAttribute readonly
+
+// This is a noSubscriptions attribute (property). Does not exist in standard D-Bus, will produce annotation.
+attribute Int32 theNoSubscriptionsAttribute noSubscriptions
+
+// This is a readonly noSubscriptions attribute (property). Does not exist in standard D-Bus, will produce annotation.
+attribute Int32 theNoSubscriptionsReadOnlyAttribute readonly noSubscriptions
+
 // This is the first method. It takes two strings as input and outputs a boolean.
+
+
+
 method first {
 	in
 	{
@@ -27,7 +63,8 @@ method second {
 }
 
 
-/* This is the third method. It takes several in-paramenter but returns only one out-parameter. */
+// This is the third method. It takes several in-paramenters but returns only one out-parameter.
+
 method third {
 	in
 	{
@@ -49,27 +86,31 @@ method third {
 }
 
 
-// This is a standard attribute (property).
-attribute Int32 theAttribute
 
-// This is a readonly attribute (property).
-attribute Int32 theReadOnlyAttribute readonly
+//This is an example enumeration.
+enumeration colors {
+	Black = 13
+	White = 25
+	Red = 72
+	Other_Color
+	No_Color
+}
 
-// This is a noSubscriptions attribute (property). Does not exist in standard D-Bus, will produce annotation.
-attribute Int32 theNoSubscriptionsAttribute noSubscriptions
+// This example enumeration extends the previous one.
+enumeration MoreColors extends Colors {
+	Green = 43
+	Blue = 45
+	Yellow = 4
+	Many_Colors
+}
 
-// This is a readonly noSubscriptions attribute (property). Does not exist in standard D-Bus, will produce annotation.
-attribute Int32 theNoSubscriptionsReadOnlyAttribute readonly noSubscriptions
 
+// This is an example type definition.
+typedef ThisIsMyInt32Type is Int32 
 
+// This is a type definition of a custom type.
+typedef ThisIsMyCustomTypeDef is MyCustomType
 
-
-
-// This is a comment test.
-<** This is a...
-   ... second comment test. **>
-/* This is a...
-   ... third comment test. */
 
 
 }

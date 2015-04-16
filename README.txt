@@ -1,4 +1,4 @@
-README v0.1
+README v0.2
 Written by Jesper Lundkvist
 jesperlundkvist@gmail.com
 
@@ -16,8 +16,7 @@ Flex 2.5.4 (version probably important)
 
 ---File list---
 
-franca.cf		Franca BNF grammar definitions.
-francaTest1.fidl	Example Franca interface file.
+franca.cf		BNF grammar definitions for Franca IDL.
 GenerateXML.C		Contains main function.
 Makefile		Makefile. Don't generate a new one!
 README.txt		This file.

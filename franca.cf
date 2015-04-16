@@ -7,27 +7,33 @@
 
 
 -- definitions
-Prog.		Program	::= [Def] ;
+Prog.			Program	::= [Def] ;
 
 -- A Franca IDL file consist of a series of definitions.
-DPackage.	Def ::= "package" Id ;
-DInterface.	Def ::= "interface" Id "{" IBody "}" ;
+DPackage.		Def ::= "package" Id ;
+DInterface.		Def ::= "interface" Id "{" IBody "}" ;
 terminator Def "" ;
 
 
+-- This is a bit lazy - I define a type collection in the same way as an interface.
+-- This is to avoid having separate definitions for the same structure, 
+-- e.g. Enumerations as IBodyItem and TypeCollectionItem.
+DTypeCollection.	Def ::= "typeCollection" Id "{" IBody "}" ;
+
+
 -- Interfaces consist of a number of interface body items.
-DIBody.	IBody ::= [IBodyItem] ;
+DIBody.			IBody ::= [IBodyItem] ;
 terminator IBodyItem "" ;
 
 
 -- Methods are one kind of interface body item. They can have either in- or out-parameters, both, or none.
-DMethod.	IBodyItem ::= "method" Id "{" "}" ;
-DInMethod.	IBodyItem ::= "method" Id "{" "in" "{" [InVari] "}" "}" ;
-DOutMethod.	IBodyItem ::= "method" Id "{" "out" "{" [OutVari] "}" "}" ;
-DInOutMethod.	IBodyItem ::= "method" Id "{" "in" "{" [InVari] "}" "out" "{" [OutVari] "}" "}" ;
+DMethod.		IBodyItem ::= "method" Id "{" "}" ;
+DInMethod.		IBodyItem ::= "method" Id "{" "in" "{" [InVari] "}" "}" ;
+DOutMethod.		IBodyItem ::= "method" Id "{" "out" "{" [OutVari] "}" "}" ;
+DInOutMethod.		IBodyItem ::= "method" Id "{" "in" "{" [InVari] "}" "out" "{" [OutVari] "}" "}" ;
 
 -- Version is another interface body item.
-DVersion.	IBodyItem ::= "version" "{" "major" Integer "minor" Integer "}" ;
+DVersion.		IBodyItem ::= "version" "{" "major" Integer "minor" Integer "}" ;
 
 
 -- Attributes are also an interface body item.
@@ -41,13 +47,30 @@ DAttribReadOnlyNoSub2.	IBodyItem ::= "attribute" Type Id "noSubscriptions" "read
 
 
 -- Parameters consist of a type and an id.
-DInVar.		InVari ::= Type Id ;
-DOutVar.	OutVari ::= Type Id ;
-DVar.		Vari ::= Type Id ;
---DVarArr.	Vari ::= Type "[]" Id ;
+DInVar.			InVari ::= Type Id ;
+DOutVar.		OutVari ::= Type Id ;
+DVar.			Vari ::= Type Id ;
+--DVarArr.		Vari ::= Type "[]" Id ;
 terminator Vari "" ;
 terminator InVari "" ;
 terminator OutVari "" ;
+
+
+-- Enumerations (interface body item)
+DEnumDef.		IBodyItem ::= "enumeration" Id "{" EnumList "}" ;
+DExtendedEnumDef.	IBodyItem ::= "enumeration" EnumId "extends" Id "{" EnumList "}" ;
+
+DEnumIdent.		EnumId ::= Id ;
+DEnumList.		EnumList ::= [Enum] ;
+terminator Enum "" ;
+DEnum.			Enum ::= Id ;
+DEnumValue.		Enum ::= Id "=" Integer ;
+
+
+-- Typedefs
+DTypeDef.		IBodyItem ::= "typedef" TypeDefId "is" Type ;
+DTypeDefCustom.		IBodyItem ::= "typedef" TypeDefId "is" Id ;
+DTypeDefIdent.		TypeDefId ::= Id ;
 
 
 -- Franca IDL types
