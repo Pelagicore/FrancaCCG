@@ -4,7 +4,16 @@
 
 #include <string>
 #include "XMLGenerator.H"
+#include <iostream>
+#include "Parser.H"
+#include "Printer.H"
+#include "Absyn.H"
 
+
+
+////////////////////////////////////////////////////////////
+// Functions handling the buffer
+////////////////////////////////////////////////////////////
 
 void GenerateDBusXML::newIndLine()
 {
@@ -25,7 +34,6 @@ void GenerateDBusXML::decreaseIndent()
   }
 }
 
-
 void GenerateDBusXML::render(Char c)
 {
   bufAppend(c);
@@ -40,7 +48,6 @@ void GenerateDBusXML::render(String s_)
   }
 }
 
-
 void GenerateDBusXML::indent()
 {
   int n = _n_;
@@ -51,22 +58,21 @@ void GenerateDBusXML::indent()
   }
 }
 
+void GenerateDBusXML::removeLastDot()
+{
 
-//void GenerateDBusXML::backup()
-//{
-//  if (buf_[cur_ - 1] == ' ')
-//  {
-//    buf_[cur_ - 1] = 0;
-//    cur_--;
-//  }
-//}
+  while (buf_[cur_ - 1] == '.')
+  {
+    buf_[cur_ - 1] = 0;
+    cur_--;
+  }
 
-
+}
 
 void GenerateDBusXML::removeLastComma()
 {
 
-  while ((buf_[cur_ - 1] == ' ') || (buf_[cur_ - 2] == ','))
+  while ((buf_[cur_ - 1] == ' ') && (buf_[cur_ - 2] == ','))
   {
     buf_[cur_ - 1] = 0;
     buf_[cur_ - 2] = 0;
@@ -85,6 +91,19 @@ void GenerateDBusXML::removeLine()
   }
 }
 
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////
+// Constructors and 'main' functions
+////////////////////////////////////////////////////////////
+
 GenerateDBusXML::GenerateDBusXML(void)
 {
   _n_ = 0;
@@ -99,23 +118,60 @@ GenerateDBusXML::~GenerateDBusXML(void)
 }
 
 
-char* GenerateDBusXML::generate(Visitable *v)
+char* GenerateDBusXML::generate(Visitable *v, String s)
 {
   _n_ = 0;
-  packageName = NULL;
+  packageName = "";
+  pathToImportFile = s;
   bufReset();
   v->accept(this);
   return buf_;
 }
 
-//TODO fix this method. Needed?
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////
+// 
+////////////////////////////////////////////////////////////
+
+
 void GenerateDBusXML::visitProgram(Program*p) {} //abstract class
-
 void GenerateDBusXML::visitEnum(Enum* t) {} //abstract class
-
 void GenerateDBusXML::visitEnumList(EnumList* t) {} //abstract class
 void GenerateDBusXML::visitEnumId(EnumId* t) {} //abstract class
 void GenerateDBusXML::visitTypeDefId(TypeDefId* t) {} //abstract class
+void GenerateDBusXML::visitFileName(FileName* t) {} //abstract class
+void GenerateDBusXML::visitFileEnding(FileEnding* t) {} //abstract class
+void GenerateDBusXML::visitNamespace(Namespace* t) {} //abstract class
+void GenerateDBusXML::visitNamespaceID(NamespaceID* t) {} //abstract class
+void GenerateDBusXML::visitPackageName(PackageName* t) {} //abstract class
+void GenerateDBusXML::visitDef(Def*p) {} //abstract class
+void GenerateDBusXML::visitIBodyItem(IBodyItem*p) {} //abstract class
+void GenerateDBusXML::visitIBody(IBody*p) {} //abstract class
+void GenerateDBusXML::visitVari(Vari*p) {} //abstract class
+void GenerateDBusXML::visitInVari(InVari*p) {} //abstract class
+void GenerateDBusXML::visitOutVari(OutVari*p) {} //abstract class
+void GenerateDBusXML::visitType(Type*p) {} //abstract class
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////
+// PROGRAM - visitor functions
+////////////////////////////////////////////////////////////
 
 //TODO fix this method
 void GenerateDBusXML::visitProg(Prog* p)
@@ -133,12 +189,234 @@ void GenerateDBusXML::visitProg(Prog* p)
 
 }
 
-//TODO fix this method. Needed?
-void GenerateDBusXML::visitDef(Def*p) {} //abstract class
 
 
 
 
+
+
+
+
+////////////////////////////////////////////////////////////
+// FILE IMPORT - visitor functions
+////////////////////////////////////////////////////////////
+
+void GenerateDBusXML::visitDImport(DImport *dimport)
+{
+  /* Code For DImport Goes Here */
+  importedNameSpace = "";
+  importedFileName = "";
+  
+  
+  // Save namespace
+  int old_cur = cur_;
+  dimport->namespace_->accept(this);
+  removeLastDot();
+  for (int i = old_cur; i< cur_; i++) {
+  	importedNameSpace.push_back(buf_[i]);
+  }
+  // Reset buffer, we don't want to print namespace
+  cur_ = old_cur;
+  
+  // File name is saved in its function, not done here. TODO change?
+  dimport->filename_->accept(this);
+  
+  //std::cout << "DEBUG: importedNameSpace: " << importedNameSpace << std::endl; 
+  //std::cout << "DEBUG: importedFileName: " << importedFileName << std::endl; 
+  
+  if (importedNameSpace.at(importedNameSpace.length() -1) == '.' ) {
+    importedNameSpace = importedNameSpace.substr(0, importedNameSpace.length()-1);
+  }
+  
+  //std::cout << "DEBUG: importedNameSpace: " << importedNameSpace << std::endl; 
+  // Now namespace and file name are saved, and we can open the file.
+  
+ 
+  FILE *importedFile;
+  
+  if (pathToImportFile == "") {
+    importedFile = fopen(importedFileName.c_str(), "r");
+  } else {
+    importedFile = fopen((pathToImportFile + "/" + importedFileName).c_str(), "r");
+  }
+  
+  if (!importedFile)
+  {
+    std::cout << "Error importing fidl file from import statement: " << importedFileName << std::endl;
+    exit(1);
+  }
+  
+  // do stuff with file...
+  // ... but what?
+  // Import and render entire type collection for now. Should probably be saved and rendered later on.
+  // Also, more importantly: Should only import the specific namespace! TODO
+  
+  
+  Program *imported_parse_tree = pProgram(importedFile);
+  if (imported_parse_tree)
+  {
+    GenerateDBusXML *imported_g = new GenerateDBusXML();   
+    String xmlFromImport;
+    xmlFromImport = imported_g->generate(imported_parse_tree, pathToImportFile);
+
+    // Some unneccecary XML code has been generated. Eliminate it.
+    String tmp_packageName = importedNameSpace.substr(0, importedNameSpace.find("."));
+    String startString = "<node name=\"" + tmp_packageName + "\">";
+    size_t startPos = xmlFromImport.find(startString, 0) + startString.length() + 4; //TODO this nasty 4 should be removed
+    size_t endPos = xmlFromImport.find("</node>", startPos);
+    String strippedXMLImport = xmlFromImport.substr(startPos, endPos-startPos);
+    
+    //Finally render the stripped string.
+    render(strippedXMLImport);
+
+  } else {
+    std::cout << "Error parsing imported fidl file: " << importedFileName << std::endl;
+  }
+  
+  fclose(importedFile);
+}
+
+void GenerateDBusXML::visitDFileName(DFileName *dfilename)
+{
+
+  // Save the file name but don't print it (visitId will append it to buffer)
+  int old_cur = cur_;
+  visitId(dfilename->id_);
+  render(".");
+  dfilename->fileending_->accept(this);
+  
+  for (int i = old_cur; i< cur_; i++) {
+  	importedFileName.push_back(buf_[i]);
+  }
+  
+  cur_ = old_cur;
+  // Buffer is now reset to before filename was processed,
+  // and file name is saved to importedFileName.
+
+  
+}
+
+void GenerateDBusXML::visitDFileNameNoEnd(DFileNameNoEnd *dfilenamenoend)
+{
+
+  // Save the file name but don't print it (visitId will append it to buffer)
+  int old_cur = cur_;
+  visitId(dfilenamenoend->id_);
+  for (int i = old_cur; i< cur_; i++) {
+  	importedFileName.push_back(buf_[i]);
+  }
+  
+  cur_ = old_cur;
+  // Buffer is now reset to before filename was processed,
+  // and file name is saved to importedFileName.
+  
+}
+
+void GenerateDBusXML::visitDFileEnding(DFileEnding *dfileending)
+{
+  visitId(dfileending->id_);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////
+// NAMESPACES AND PACKAGES - visitor functions
+////////////////////////////////////////////////////////////
+
+
+
+void GenerateDBusXML::visitDNamespace(DNamespace *dnamespace)
+{
+  /* Code For DNamespace Goes Here */
+
+  dnamespace->listnamespaceid_->accept(this);
+
+}
+
+void GenerateDBusXML::visitDNamespaceID(DNamespaceID *dnamespaceid)
+{
+  /* Code For DNamespaceID Goes Here */
+
+  visitId(dnamespaceid->id_);
+
+}
+
+
+void GenerateDBusXML::visitListNamespaceID(ListNamespaceID* listnamespaceid)
+{
+  for (ListNamespaceID::iterator i = listnamespaceid->begin() ; i != listnamespaceid->end() ; ++i)
+  {
+    (*i)->accept(this);
+    render(".");
+  }
+}
+
+
+
+void GenerateDBusXML::visitDPackage(DPackage* p)
+{
+  // Should be one indent to the left
+  removeLine();
+  decreaseIndent();
+  newIndLine();
+
+  render("<node name=\"");
+  p->packagename_->accept(this);
+  render("\">");
+
+  increaseIndent();
+  newIndLine();
+}
+
+void GenerateDBusXML::visitDPackageName(DPackageName *dpackagename)
+{
+  
+  // Save the package name 
+  int old_cur = cur_;
+    
+  dpackagename->listnamespaceid_->accept(this);
+  removeLastDot();
+  for (int i = old_cur; i< cur_; i++) {
+  	packageName.push_back(buf_[i]);
+  }
+  
+  //cur_ = old_cur;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////
+// ENUMS - visitor functions
+////////////////////////////////////////////////////////////
 
 void GenerateDBusXML::visitDEnumDef(DEnumDef *denumdef)
 {
@@ -157,7 +435,6 @@ void GenerateDBusXML::visitDEnumDef(DEnumDef *denumdef)
   render("}\"/>");
   newIndLine();
 }
-
 
 void GenerateDBusXML::visitDExtendedEnumDef(DExtendedEnumDef *dextendedenumdef)
 {
@@ -183,11 +460,7 @@ void GenerateDBusXML::visitDExtendedEnumDef(DExtendedEnumDef *dextendedenumdef)
   render("}\"/>");
   newIndLine();
 
-
-
 }
-
-
 
 void GenerateDBusXML::visitDEnum(DEnum *denum)
 {
@@ -226,31 +499,37 @@ void GenerateDBusXML::visitDEnumIdent(DEnumIdent *denumident)
 }
 
 
-
-
-void GenerateDBusXML::visitDPackage(DPackage* p)
+void GenerateDBusXML::visitListEnum(ListEnum* listenum)
 {
-  // Should be one indent to the left
-  removeLine();
-  decreaseIndent();
-  newIndLine();
-
-  render("<node name=\"");
-  visitPackageName(p->id_);
-  render("\">");
-
-  increaseIndent();
-  newIndLine();
-}
-
-// Special case of visitIdent, since package name must be saved
-void GenerateDBusXML::visitPackageName(String s_)
-{
-  packageName = s_.c_str() ;
-  render(packageName);
+  for (ListEnum::iterator i = listenum->begin() ; i != listenum->end() ; ++i)
+  {
+    (*i)->accept(this);
+  }
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////
+// INTERFACES- visitor functions
+////////////////////////////////////////////////////////////
 
 
 //TODO fix this method
@@ -259,12 +538,8 @@ void GenerateDBusXML::visitDInterface(DInterface* p)
 
   render("<interface name=\"");
 
-  if(packageName != NULL) {
-    render(packageName);
-  } else {
-    //TODO Error
+  render(packageName);
 
-  }
   render(".");
   visitIdent(p->id_);
   render("\">");
@@ -282,10 +557,32 @@ void GenerateDBusXML::visitDInterface(DInterface* p)
 }
 
 
+void GenerateDBusXML::visitDIBody(DIBody* p)
+{
+  if(p->listibodyitem_) {p->listibodyitem_->accept(this);}
+
+}
+
+
+void GenerateDBusXML::visitListIBodyItem(ListIBodyItem *listibodyitem)
+{
+  for (ListIBodyItem::const_iterator i = listibodyitem->begin() ; i != listibodyitem->end() ; ++i)
+  {
+    (*i)->accept(this);
+
+  }
+}
+
+void GenerateDBusXML::visitDVersion(DVersion* p) {
+  // TODO what to do with version? <version> tag or ignore?
+}
+
+
+
+
 void GenerateDBusXML::visitDTypeCollection(DTypeCollection *dtypecollection)
 {
   // TODO Handle type collections in a good way
-  
 
   //visitId(dtypecollection->id_);
   dtypecollection->ibody_->accept(this);
@@ -301,34 +598,62 @@ void GenerateDBusXML::visitListDef(ListDef *listdef)
   }
 }
 
-//TODO fix this method. Needed?
-void GenerateDBusXML::visitIBody(IBody*p) {} //abstract class
 
-//TODO fix this method
-void GenerateDBusXML::visitDIBody(DIBody* p)
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////
+// TYPE DEFINITIONS - visitor functions
+////////////////////////////////////////////////////////////
+
+void GenerateDBusXML::visitDTypeDef(DTypeDef *dtypedef)
 {
-  if(p->listibodyitem_) {p->listibodyitem_->accept(this);}
+  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.Typedef\" value=\"{");
+  dtypedef->typedefid_->accept(this);
+  render(", ");
+
+  dtypedef->type_->accept(this);
+  render("}\"/>");
+  newIndLine();
 
 }
 
-//TODO fix this method
-void GenerateDBusXML::visitListIBodyItem(ListIBodyItem *listibodyitem)
+void GenerateDBusXML::visitDTypeDefCustom(DTypeDefCustom *dtypedefcustom)
 {
-  for (ListIBodyItem::const_iterator i = listibodyitem->begin() ; i != listibodyitem->end() ; ++i)
-  {
-    (*i)->accept(this);
+  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.Typedef\" value=\"{");
+  dtypedefcustom->typedefid_->accept(this);
+  render(", ");
 
-  }
+  visitId(dtypedefcustom->id_);
+  render("}\"/>");
+  newIndLine();
 }
 
-//TODO fix this method. Needed?
-void GenerateDBusXML::visitIBodyItem(IBodyItem*p) {} //abstract class
+void GenerateDBusXML::visitDTypeDefIdent(DTypeDefIdent *dtypedefident)
+{
+  /* Code For DTypeDefIdent Goes Here */
 
-void GenerateDBusXML::visitDVersion(DVersion* p) {
-  // TODO what to do with version? <version> tag or ignore?
+  visitId(dtypedefident->id_);
+
 }
 
 
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////
+// METHODS AND METHOD PARAMETERS - visitor functions
+////////////////////////////////////////////////////////////
 
 void GenerateDBusXML::visitDMethod(DMethod* p)
 {
@@ -376,8 +701,6 @@ void GenerateDBusXML::visitDOutMethod(DOutMethod* p)
   newIndLine();
 }
 
-
-
 void GenerateDBusXML::visitDInOutMethod(DInOutMethod* p)
 {
   render("<method name=\"");
@@ -398,125 +721,6 @@ void GenerateDBusXML::visitDInOutMethod(DInOutMethod* p)
 }
 
 
-  
-// Attributes
-
-void GenerateDBusXML::visitDAttrib(DAttrib *dattrib)
-{
-
-
-  render("<property access=\"readwrite\" name=\"");
-  visitIdent(dattrib->id_);
-  render("\" type=\"");
-  dattrib->type_->accept(this);
-  render("\">");
-
-  newIndLine();
-  render("</property>");
-  newIndLine();
-
-
-
-}
-
-void GenerateDBusXML::visitDAttribReadOnly(DAttribReadOnly *dattribreadonly)
-{
-
-
-  render("<property access=\"read\" name=\"");
-  visitIdent(dattribreadonly->id_);
-  render("\" type=\"");
-  dattribreadonly->type_->accept(this);
-  render("\">");
-
-  newIndLine();
-  render("</property>");
-  newIndLine();
-
-
-
-}
-
-void GenerateDBusXML::visitDAttribNoSub(DAttribNoSub *dattribnosub)
-{
-
-  render("<property access=\"readwrite\" name=\"");
-  visitIdent(dattribnosub->id_);
-  render("\" type=\"");
-  dattribnosub->type_->accept(this);
-  render("\">");
-  
-  increaseIndent();
-  newIndLine();
-
-  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.NoSubscriptions\" value=\"True\"/>");
-  
-  removeLine();
-  decreaseIndent();
-  newIndLine();
-
-
-  render("</property>");
-  newIndLine();
-
-
-
-
-}
-
-void GenerateDBusXML::visitDAttribReadOnlyNoSub(DAttribReadOnlyNoSub *dattribreadonlynosub)
-{
-  render("<property access=\"read\" name=\"");
-  visitIdent(dattribreadonlynosub->id_);
-  render("\" type=\"");
-  dattribreadonlynosub->type_->accept(this);
-  render("\">");
-  
-  increaseIndent();
-  newIndLine();
-
-  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.NoSubscriptions\" value=\"True\"/>");
-  
-  removeLine();
-  decreaseIndent();
-  newIndLine();
-
-
-  render("</property>");
-  newIndLine();
-
-
-}
-
-void GenerateDBusXML::visitDAttribReadOnlyNoSub2(DAttribReadOnlyNoSub2 *dattribreadonlynosub2)
-{
-
-  // TODO Franca does not allow readOnly to be after noSubscriptions. Produce error instead of code!
-  render("<property access=\"read\" name=\"");
-  visitIdent(dattribreadonlynosub2->id_);
-  render("\" type=\"");
-  dattribreadonlynosub2->type_->accept(this);
-  render("\">");
-  
-  increaseIndent();
-  newIndLine();
-
-  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.NoSubscriptions\" value=\"True\"/>");
-  
-  removeLine();
-  decreaseIndent();
-  newIndLine();
-
-
-  render("</property>");
-  newIndLine();
-
-}
-
-
-//TODO fix this method. Needed?
-void GenerateDBusXML::visitInVari(InVari*p) {} //abstract class
-
 //TODO fix this method
 void GenerateDBusXML::visitDInVar(DInVar* p)
 {
@@ -535,9 +739,6 @@ void GenerateDBusXML::visitDInVar(DInVar* p)
 }
 
 
-//TODO fix this method. Needed?
-void GenerateDBusXML::visitOutVari(OutVari*p) {} //abstract class
-
 //TODO fix this method
 void GenerateDBusXML::visitDOutVar(DOutVar* p)
 {
@@ -555,16 +756,11 @@ void GenerateDBusXML::visitDOutVar(DOutVar* p)
 }
 
 
-//TODO fix this method. Needed?
-void GenerateDBusXML::visitVari(Vari*p) {} //abstract class
-
-
 void GenerateDBusXML::visitDVar(DVar* p)
 {
   p->type_->accept(this);
   visitIdent(p->id_);
 }
-
 
 
 void GenerateDBusXML::visitListVari(ListVari *listvari)
@@ -596,55 +792,137 @@ void GenerateDBusXML::visitListOutVari(ListOutVari *listoutvari)
   }
 }
 
-void GenerateDBusXML::visitListEnum(ListEnum* listenum)
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////
+// ATTRIBUTES / PROPERTIES - visitor functions
+////////////////////////////////////////////////////////////
+
+void GenerateDBusXML::visitDAttrib(DAttrib *dattrib)
 {
-  for (ListEnum::iterator i = listenum->begin() ; i != listenum->end() ; ++i)
-  {
-    (*i)->accept(this);
-  }
+
+
+  render("<property access=\"readwrite\" name=\"");
+  visitIdent(dattrib->id_);
+  render("\" type=\"");
+  dattrib->type_->accept(this);
+  render("\">");
+
+  newIndLine();
+  render("</property>");
+  newIndLine();
 }
 
-
-void GenerateDBusXML::visitDTypeDef(DTypeDef *dtypedef)
+void GenerateDBusXML::visitDAttribReadOnly(DAttribReadOnly *dattribreadonly)
 {
-  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.Typedef\" value=\"{");
-  dtypedef->typedefid_->accept(this);
-  render(", ");
 
-  dtypedef->type_->accept(this);
-  render("}\"/>");
+
+  render("<property access=\"read\" name=\"");
+  visitIdent(dattribreadonly->id_);
+  render("\" type=\"");
+  dattribreadonly->type_->accept(this);
+  render("\">");
+
+  newIndLine();
+  render("</property>");
+  newIndLine();
+}
+
+void GenerateDBusXML::visitDAttribNoSub(DAttribNoSub *dattribnosub)
+{
+
+  render("<property access=\"readwrite\" name=\"");
+  visitIdent(dattribnosub->id_);
+  render("\" type=\"");
+  dattribnosub->type_->accept(this);
+  render("\">");
+  
+  increaseIndent();
+  newIndLine();
+
+  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.NoSubscriptions\" value=\"True\"/>");
+  
+  removeLine();
+  decreaseIndent();
+  newIndLine();
+
+  render("</property>");
+  newIndLine();
+
+
+}
+
+void GenerateDBusXML::visitDAttribReadOnlyNoSub(DAttribReadOnlyNoSub *dattribreadonlynosub)
+{
+  render("<property access=\"read\" name=\"");
+  visitIdent(dattribreadonlynosub->id_);
+  render("\" type=\"");
+  dattribreadonlynosub->type_->accept(this);
+  render("\">");
+  
+  increaseIndent();
+  newIndLine();
+
+  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.NoSubscriptions\" value=\"True\"/>");
+  
+  removeLine();
+  decreaseIndent();
+  newIndLine();
+
+
+  render("</property>");
   newIndLine();
 
 }
 
-void GenerateDBusXML::visitDTypeDefCustom(DTypeDefCustom *dtypedefcustom)
+void GenerateDBusXML::visitDAttribReadOnlyNoSub2(DAttribReadOnlyNoSub2 *dattribreadonlynosub2)
 {
-  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.Typedef\" value=\"{");
-  dtypedefcustom->typedefid_->accept(this);
-  render(", ");
 
-  visitId(dtypedefcustom->id_);
-  render("}\"/>");
+  // TODO Franca does not allow readOnly to be after noSubscriptions. Produce error instead of code!
+  render("<property access=\"read\" name=\"");
+  visitIdent(dattribreadonlynosub2->id_);
+  render("\" type=\"");
+  dattribreadonlynosub2->type_->accept(this);
+  render("\">");
+  
+  increaseIndent();
+  newIndLine();
+
+  render("<annotation name=\"com.pelagicore.FrancaCCodeGen.NoSubscriptions\" value=\"True\"/>");
+  
+  removeLine();
+  decreaseIndent();
   newIndLine();
 
 
-
-
-}
-
-void GenerateDBusXML::visitDTypeDefIdent(DTypeDefIdent *dtypedefident)
-{
-  /* Code For DTypeDefIdent Goes Here */
-
-  visitId(dtypedefident->id_);
+  render("</property>");
+  newIndLine();
 
 }
 
 
 
-//TODO fix this method. Needed?
-void GenerateDBusXML::visitType(Type*p) {} //abstract class
 
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////
+// TYPES AND IDENTIFIERS - visitor functions
+////////////////////////////////////////////////////////////
 
 
 void GenerateDBusXML::visitDUIntEight(DUIntEight* p)

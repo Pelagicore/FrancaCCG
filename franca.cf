@@ -1,7 +1,7 @@
 
 -- Franca IDL grammar file
 -- Author	Jesper Lundqvist
--- Version	0.2
+-- Version	0.3
 
 -- Usage: Use with BNFC software suite. See README file for instructions.
 
@@ -10,7 +10,8 @@
 Prog.			Program	::= [Def] ;
 
 -- A Franca IDL file consist of a series of definitions.
-DPackage.		Def ::= "package" Id ;
+DPackage.		Def ::= "package" PackageName ;
+DPackageName.		PackageName ::= [NamespaceID] ;
 DInterface.		Def ::= "interface" Id "{" IBody "}" ;
 terminator Def "" ;
 
@@ -21,9 +22,21 @@ terminator Def "" ;
 DTypeCollection.	Def ::= "typeCollection" Id "{" IBody "}" ;
 
 
+-- Import from another Franca file. Not sure how this should be handled. What to import?
+DImport.		Def ::= "import" Namespace ".*" "from" "\"" FileName "\"" ;
+DFileName.		FileName ::= Id "." FileEnding ;
+DFileNameNoEnd.		FileName ::= Id ;
+DFileEnding.		FileEnding ::= Id ;
+DNamespace.		Namespace ::= [NamespaceID] ;
+DNamespaceID.		NamespaceID ::= Id ;
+separator NamespaceID "." ;
+
+
+
 -- Interfaces consist of a number of interface body items.
 DIBody.			IBody ::= [IBodyItem] ;
 terminator IBodyItem "" ;
+--separator IBodyItem "" ;
 
 
 -- Methods are one kind of interface body item. They can have either in- or out-parameters, both, or none.
@@ -92,6 +105,8 @@ DByteBuffer.		Type ::= "ByteBuffer" ;
 
 
 -- Identifiers
+
+
 token Id (letter (letter | digit | '_')*) ;
 
 

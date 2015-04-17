@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <string>
 
 
 /* Certain applications may improve performance by changing the buffer size */
@@ -17,7 +18,7 @@ class GenerateDBusXML : public Visitor
 {
  protected:
   int _n_, _i_;
-  const char* packageName;
+  String packageName;
  
   
   /* The following are simple heuristics for rendering terminals */
@@ -30,12 +31,13 @@ class GenerateDBusXML : public Visitor
   void render(String s);
   void indent(void);
   //void backup(void);
+  void removeLastDot(void);
   void removeLastComma(void);
   void removeLine(void);
  public:
   GenerateDBusXML(void);
   ~GenerateDBusXML(void);
-  char* generate(Visitable* v);
+  char* generate(Visitable* v, String s);
 
   void visitPackageName(String s_);
   void visitProgram(Program *p); /* abstract class */
@@ -115,6 +117,21 @@ class GenerateDBusXML : public Visitor
   void visitDTypeCollection(DTypeCollection* p);
 
 
+  void visitFileName(FileName* p);
+  void visitFileEnding(FileEnding* p);
+  void visitDImport(DImport* p);
+  void visitDFileName(DFileName* p);
+  void visitDFileNameNoEnd(DFileNameNoEnd* p);
+  void visitDFileEnding(DFileEnding* p);
+  void visitDNamespace(DNamespace* p);
+  void visitDNamespaceID(DNamespaceID* p);
+  void visitNamespace(Namespace* p);
+  void visitNamespaceID(NamespaceID* p);
+  void visitListNamespaceID(ListNamespaceID* p);
+  void saveNamespaceId(String s);
+  void visitPackageName(PackageName* p);
+  void visitDPackageName(DPackageName* p);
+
  protected:
   void inline bufAppend(const char* s)
   {
@@ -167,6 +184,9 @@ class GenerateDBusXML : public Visitor
   char *buf_;
   int cur_, buf_size;
   bool enum_empty;
+  String importedFileName;
+  String importedNameSpace;
+  String pathToImportFile;
 };
 
 

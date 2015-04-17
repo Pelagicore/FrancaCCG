@@ -14,7 +14,13 @@ using namespace std;
 
 int main(int argc, char ** argv)
 {
+  if (argv[1] == NULL) {
+    fprintf(stderr, "Error: No .fidl file given.\n");
+    exit(1);
+  }
+
   FILE *input;
+  String pathToImportFile = "";
   if (argc > 1) 
   {
     input = fopen(argv[1], "r");
@@ -23,11 +29,24 @@ int main(int argc, char ** argv)
       fprintf(stderr, "Error opening input file.\n");
       exit(1);
     }
+    
+    // To solve imports in the fidl file, we need to save the folder path.
+    String tmp_pathToImportFile = argv[1];
+    size_t posOfLastSlash = tmp_pathToImportFile.find_last_of("/");
+    if (posOfLastSlash != string::npos) {
+      pathToImportFile = tmp_pathToImportFile.substr(0, posOfLastSlash);
+    }
+    //cout << "Path to file name: " << pathToImportFile << endl;
+    //cout << "Position of last /: " <<  posOfLastSlash << endl;
+  } 
+  else {
+  input = stdin;
   }
-  else input = stdin;
+  
   /* The default entry point is used. For other options see Parser.H */
 
 
+  
   
   // Output file for D-Bus XML Introspection
 
@@ -47,11 +66,11 @@ int main(int argc, char ** argv)
   ofstream output;
   output.open(outputFilename.c_str());
   
-  //TODO
 
   Program *parse_tree = pProgram(input);
   if (parse_tree)
   {
+    /*
     printf("\nParse Succesful!\n");
     printf("\n[Abstract Syntax]\n");
     ShowAbsyn *s = new ShowAbsyn();
@@ -59,15 +78,17 @@ int main(int argc, char ** argv)
     printf("[Linearized Tree]\n");
     PrintAbsyn *p = new PrintAbsyn();
     printf("%s\n\n", p->print(parse_tree));
-    printf("[D-Bus XML Introspection]\n");
+    
+    */
+    printf("\n\n[D-Bus XML Introspection]\n\n");
     GenerateDBusXML *g = new GenerateDBusXML();   
-    printf("%s\n\n", g->generate(parse_tree));
+    printf("%s\n\n", g->generate(parse_tree, pathToImportFile));
 
     //TODO shouldn't generate twice... save it instead.
     printf("Done generating and printing D-Bus XML Introspection! Generating to file...\n");
     
     GenerateDBusXML *g2 = new GenerateDBusXML();
-    output << g2->generate(parse_tree);
+    output << g2->generate(parse_tree, pathToImportFile);
     printf("Done. Closing file...\n");
     output.close();
     printf("Done. Finished generating D-Bus XML Introspection to file.\n");

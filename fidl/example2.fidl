@@ -2,20 +2,7 @@ package Francaccodegen
 
 
 
-
-
-typeCollection MyTypes {
-
-	typedef MyInt is UInt32
-	typedef MySmallerInt is UInt16
-
-	enumeration MyNumbers {
-		One
-		Two
-		Three		
-	}
-}
-
+import Francaccodegen.MyTypes.* from "example2FileToImport.fidl"
 
 
 interface example2 {
@@ -24,9 +11,6 @@ version {
 	major 1
 	minor 2
 }
-
-
-
 	
 // This is a standard attribute (property).
 attribute Int32 theAttribute
