@@ -62,6 +62,9 @@ DAttribReadOnlyNoSub2.	IBodyItem ::= "attribute" Type Id "noSubscriptions" "read
 -- Parameters consist of a type and an id.
 DInVar.			InVari ::= Type Id ;
 DOutVar.		OutVari ::= Type Id ;
+--DInVarCustomType.	InVari ::= CustomType Id ;
+
+
 DVar.			Vari ::= Type Id ;
 --DVarArr.		Vari ::= Type "[]" Id ;
 terminator Vari "" ;
@@ -102,6 +105,7 @@ DFloat.			Type ::= "Float" ;
 DDouble.		Type ::= "Double" ;
 DString.		Type ::= "String" ;
 DByteBuffer.		Type ::= "ByteBuffer" ;
+DCustomType. 		Type ::= Id ;
 
 
 -- Identifiers

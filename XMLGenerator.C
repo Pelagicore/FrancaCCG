@@ -260,7 +260,7 @@ void GenerateDBusXML::visitDImport(DImport *dimport)
     xmlFromImport = imported_g->generate(imported_parse_tree, pathToImportFile);
 
     // Some unneccecary XML code has been generated. Eliminate it.
-    String tmp_packageName = importedNameSpace.substr(0, importedNameSpace.find("."));
+    String tmp_packageName = importedNameSpace.substr(0, importedNameSpace.find_last_of("."));
     String startString = "<node name=\"" + tmp_packageName + "\">";
     size_t startPos = xmlFromImport.find(startString, 0) + startString.length() + 4; //TODO this nasty 4 should be removed
     size_t endPos = xmlFromImport.find("</node>", startPos);
@@ -1054,6 +1054,14 @@ void GenerateDBusXML::visitId(String s_)
   render(s);
 }
 
+void GenerateDBusXML::visitDCustomType(DCustomType *dcustomtype)
+{
+  /* Code For DCustomType Goes Here */
+  //TODO
+  render("TODO");
+  //visitId(dcustomtype->id_);
+
+}
 
 
 

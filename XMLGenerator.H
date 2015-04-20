@@ -131,6 +131,9 @@ class GenerateDBusXML : public Visitor
   void saveNamespaceId(String s);
   void visitPackageName(PackageName* p);
   void visitDPackageName(DPackageName* p);
+  
+  
+  void visitDCustomType(DCustomType* p);
 
  protected:
   void inline bufAppend(const char* s)
