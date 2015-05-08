@@ -1056,8 +1056,10 @@ void GenerateDBusXML::visitId(String s_)
 
 void GenerateDBusXML::visitDCustomType(DCustomType *dcustomtype)
 {
-  /* Code For DCustomType Goes Here */
+
   //TODO
+  // Custom type can (at the moment) either be a typedef, or an enumeration
+  // could also be a struct, union, map, array - but not supported atm
   render("TODO");
   //visitId(dcustomtype->id_);
 

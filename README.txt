@@ -1,3 +1,20 @@
+TEMP README
+
+Use ./run.sh to generate stub and proxy for simpleFranca/simpleFranca.fidl.
+Not usable with other Franca files at the moment (will get C compile errors with other files due to debug code)
+
+Use ./cleanup.sh to return to pre-"run.sh" state.
+
+
+
+
+
+
+
+Old readme for just Franca IDL -> D-Bus XML Introspection code generator:
+
+
+
 README v0.2
 Written by Jesper Lundkvist
 jesperlundkvist@gmail.com

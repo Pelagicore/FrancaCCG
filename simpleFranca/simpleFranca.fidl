@@ -1,0 +1,20 @@
+package Francaccodegen
+
+interface verySimpleFrancaInterface {
+
+    version {
+    	major 1
+    	minor 2
+    }
+	
+    method theOnlyMethod {
+    	in {
+    		Int16 firstNumber
+    		Int16 secondNumber
+    	}
+    	out {
+    		Int32 sumOfNumbers
+    		String stringOfNumbers
+    	}
+    }
+}
