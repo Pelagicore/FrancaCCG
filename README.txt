@@ -7,7 +7,8 @@ Use ./cleanup.sh to return to pre-"run.sh" state.
 
 
 
-
+KNOWN BUGS:
+- codegen-francac does not handle multiple methods with the same name very well.
 
 
 

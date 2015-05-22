@@ -21,6 +21,7 @@
 #  (2014) Jonatan Palsson <jonatan.palsson@pelagicore.com>
 
 import sys
+import random
 
 from textwrap import dedent
 
@@ -96,8 +97,6 @@ class CodeGenerator:
                            generated code
         """
         self.emit(self.stub_impl, text, newline)
-
-
 
 
     def generate_stub_header(self):
@@ -277,7 +276,11 @@ class CodeGenerator:
                                         GError          **error,
                                         gpointer          user_data){{
 
-                printf("ERROR: In {i.camel_name}_on_get_property function but we shouldn't have any properties yet(?).\\n");
+                //printf("ERROR: In {i.camel_name}_on_get_property function but we shouldn't have any properties yet(?).\\n");
+                //printf("sender: %s\\n", sender);
+                //printf("object_path: %s\\n", object_path);
+                //printf("interface_name: %s\\n", interface_name);
+                //printf("property_name: %s\\n", property_name);
                 return NULL;
             }}
 
@@ -290,7 +293,13 @@ class CodeGenerator:
                                         GError          **error,
                                         gpointer          user_data){{
 
-                printf("ERROR: In {i.camel_name}_on_set_property function but we shouldn't have any properties yet(?).\\n");
+                //printf("ERROR: In {i.camel_name}_on_set_property function but we shouldn't have any properties yet(?).\\n");
+                //printf("sender: %s\\n", sender);
+                //printf("object_path: %s\\n", object_path);
+                //printf("interface_name: %s\\n", interface_name);
+                //printf("property_name: %s\\n", property_name);
+
+                
                 return FALSE;
             }}
             ''').format(**locals()))
@@ -331,9 +340,7 @@ class CodeGenerator:
                     self.emit_c_s ('''        {a.ctype_out} {a.nameWithIndex} = {a.g_variant_getter}(g_variant_get_child_value(parameters, {indexOfArg}){a.g_variant_getter_extra_arguments});'''.format(**locals()))
 
                 for a in m.out_args:
-                    indexOfArg = str(m.out_args.index(a))
                     self.emit_c_s ('''        {a.ctype_out} {a.nameWithIndex};'''.format(**locals()))
-
                 
                 self.emit_c_s ('''        // Call the registered method handler, if one is registered.'''.format(**locals()))
                 self.emit_c_s ('''        if (methodsStruct.{m.camel_name_with_dbus_signature}Handler != NULL) {{'''.format(**locals()))
@@ -343,7 +350,7 @@ class CodeGenerator:
                 self.emit_c_s ('''            exit(1);''')            
                 self.emit_c_s ('''        }''')
                 self.emit_c_s ('''        //Return''')                
-                self.emit_c_s ('''        g_dbus_method_invocation_return_value (invocation, g_variant_new ("({m.out_arguments_variant_signature})", {m.out_arguments_string}));'''.format(**locals()))
+                self.emit_c_s ('''        g_dbus_method_invocation_return_value (invocation, {m.new_out_arguments_gvariant});'''.format(**locals()))
                 self.emit_c_s ('''    } else''')
             self.emit_c_s (dedent('''   
             {{
@@ -367,11 +374,14 @@ class CodeGenerator:
                 self.emit_c_s_impl ('''    // Implementation of method {m.name} goes here'''.format(**locals()))
                 
                 ### DEBUG - SHOULD BE REMOVED!
-                self.emit_c_s_impl ('''    // DEBUG CODE'''.format(**locals()))
-                self.emit_c_s_impl ('''    *sumOfNumbers_out0 = firstNumber_in0 + secondNumber_in1;'''.format(**locals()))
-                self.emit_c_s_impl ('''    gchar* nbr1 = g_strdup_printf("%i", firstNumber_in0);;'''.format(**locals()))
-                self.emit_c_s_impl ('''    gchar* nbr2 = g_strdup_printf("%i", secondNumber_in1);;'''.format(**locals()))
-                self.emit_c_s_impl ('''    *stringOfNumbers_out1 = g_strjoin("_", nbr1, nbr2, NULL);'''.format(**locals()))
+                if i.camel_name == "FrancaccodegenVerySimpleFrancaInterface":
+                    if m.name == "theOnlyMethod":
+                        self.emit_c_s_impl ('''    // DEBUG CODE'''.format(**locals()))
+                        self.emit_c_s_impl ('''    *sumOfNumbers_out0 = firstNumber_in0 + secondNumber_in1;'''.format(**locals()))
+                        self.emit_c_s_impl ('''    gchar* nbr1 = g_strdup_printf("%i", firstNumber_in0);;'''.format(**locals()))
+                        self.emit_c_s_impl ('''    gchar* nbr2 = g_strdup_printf("%i", secondNumber_in1);;'''.format(**locals()))
+                        self.emit_c_s_impl ('''    *stringOfNumbers_out1 = g_strjoin("_", nbr1, nbr2, NULL);'''.format(**locals()))
+                        self.emit_c_s_impl ('''    // END DEBUG'''.format(**locals()))
                 ###
                 
                 self.emit_c_s_impl ('''}''')
@@ -409,9 +419,9 @@ class CodeGenerator:
         for i in self.ifaces:
             for m in i.methods:
                 self.emit_h_p(dedent('''
-                void {i.camel_name}_{m.name}(GDBusProxy *proxy, {m.proxy_header_inarg_string}, const GAsyncReadyCallback callback);
+                void {i.camel_name}_{m.camel_name_with_dbus_signature}(GDBusProxy *proxy{m.proxy_header_inarg_string}, const GAsyncReadyCallback callback);
  
-                void {i.camel_name}_{m.name}_finish(GDBusProxy *proxy, {m.proxy_header_outarg_string}, GAsyncResult *result);''').format(**locals()))
+                void {i.camel_name}_{m.camel_name_with_dbus_signature}_finish(GDBusProxy *proxy{m.proxy_header_outarg_string}, GAsyncResult *result);''').format(**locals()))
             self.emit_h_p(dedent('''
             void {i.camel_name}_createForBus (GBusType bus_type, GDBusProxyFlags flags, const gchar *name, const gchar *objectPath, const GAsyncReadyCallback slot);
  
@@ -430,12 +440,12 @@ class CodeGenerator:
         for i in self.ifaces:
             for m in i.methods:
                 self.emit_c_p(dedent('''
-                void {i.camel_name}_{m.name}(GDBusProxy *proxy, {m.proxy_header_inarg_string}, const GAsyncReadyCallback callback) {{
+                void {i.camel_name}_{m.camel_name_with_dbus_signature}(GDBusProxy *proxy{m.proxy_header_inarg_string}, const GAsyncReadyCallback callback) {{
 
                     g_dbus_proxy_call(
                         proxy, 
                         "{m.name}", 
-                        g_variant_new ("({m.in_arguments_variant_signature})", {m.in_arguments_string}),
+                        {m.new_in_arguments_gvariant},
                         G_DBUS_CALL_FLAGS_NONE,
                         -1,
                         NULL,
@@ -443,7 +453,7 @@ class CodeGenerator:
                         NULL); 
                 }}
 
-                void {i.camel_name}_{m.name}_finish (GDBusProxy *proxy, {m.proxy_header_outarg_string}, GAsyncResult *result) {{
+                void {i.camel_name}_{m.camel_name_with_dbus_signature}_finish (GDBusProxy *proxy{m.proxy_header_outarg_string}, GAsyncResult *result) {{
                     // Get result from method call from d-bus proxy
                     GVariant *wrapped;
                     wrapped = g_dbus_proxy_call_finish(proxy, result, NULL);
@@ -452,9 +462,9 @@ class CodeGenerator:
                 ''').format(**locals()))
                 for a in m.out_args:
                     indexOfArg = str(m.out_args.index(a))
-                    self.emit_c_p('''    GVariant *varOutput{indexOfArg}_variant;'''.format(**locals()))
-                    self.emit_c_p('''    varOutput{indexOfArg}_variant = g_variant_get_child_value(wrapped, {indexOfArg});'''.format(**locals()))
-                    self.emit_c_p('''    *out_{a.nameWithIndex} = {a.g_variant_getter}(varOutput{indexOfArg}_variant{a.g_variant_getter_extra_arguments});'''.format(**locals()))
+                    self.emit_c_p('''    GVariant *{a.nameWithIndex}_variant;'''.format(**locals()))
+                    self.emit_c_p('''    {a.nameWithIndex}_variant = g_variant_get_child_value(wrapped, {indexOfArg});'''.format(**locals()))
+                    self.emit_c_p('''    *out_{a.nameWithIndex} = {a.g_variant_getter}({a.nameWithIndex}_variant{a.g_variant_getter_extra_arguments});'''.format(**locals()))
                     self.emit_c_p(''''''.format(**locals()))
                 self.emit_c_p('''}''')
       
@@ -505,18 +515,32 @@ class CodeGenerator:
                 self.emit_c_p_impl (dedent('''        
                 // This function is called from simpleFranca_proxy when method call is finished.
                 // It must have same signature as a GAsyncReadyCallback! void function_name(GObject *source_object, GAsyncResult *res, gpointer user_data)
-                void on_{m.name}_finished(GObject *obj, GAsyncResult *result, gpointer userdata) {{
+                void on_{m.camel_name_with_dbus_signature}_finished(GObject *obj, GAsyncResult *result, gpointer userdata) {{
                 ''').format(**locals()))
                 for a in m.out_args:
-                    indexOfArg = str(m.out_args.index(a))
                     self.emit_c_p_impl ('''    {a.ctype_out} {a.nameWithIndex}_result;'''.format(**locals()))
-                self.emit_c_p_impl ('''    {i.camel_name}_{m.name}_finish(proxy, {m.proxy_results_addresses}, result);'''.format(**locals()))
+                self.emit_c_p_impl ('''    {i.camel_name}_{m.camel_name_with_dbus_signature}_finish(proxy{m.proxy_results_addresses}, result);'''.format(**locals()))
                 self.emit_c_p_impl ('''    // result variables now contains the results of the method call.'''.format(**locals()))
  
                     
                 ### DEBUG - SHOULD BE REMOVED!
-                self.emit_c_p_impl('''    // DEBUG''')
-                self.emit_c_p_impl('''    printf("Proxy implementation got result: %d, %s \\n", sumOfNumbers_out0_result, stringOfNumbers_out1_result);''')
+                if i.camel_name == "FrancaccodegenVerySimpleFrancaInterface":
+                    if m.name == "theOnlyMethod":
+                        self.emit_c_p_impl('''    // DEBUG''')
+                        self.emit_c_p_impl('''    printf("Proxy implementation got result: %d, %s \\n", sumOfNumbers_out0_result, stringOfNumbers_out1_result);''')
+                        self.emit_c_p_impl('''    // END DEBUG''')
+                    if m.camel_name_with_dbus_signature == "theThird____":
+                        self.emit_c_p_impl('''    // DEBUG''')
+                        self.emit_c_p_impl('''    printf("Proxy implementation got reply on theThird() method. Yay!\\n");''')
+                        self.emit_c_p_impl('''    // END DEBUG''')
+                    if m.camel_name_with_dbus_signature == "theFourth__b__":
+                        self.emit_c_p_impl('''    // DEBUG''')
+                        self.emit_c_p_impl('''    printf("Proxy implementation got reply on theFourth(in gboolean) method. Yay!\\n");''')
+                        self.emit_c_p_impl('''    // END DEBUG''')
+                    if m.camel_name_with_dbus_signature == "theFifth____d":
+                        self.emit_c_p_impl('''    // DEBUG''')
+                        self.emit_c_p_impl('''    printf("Proxy implementation got reply on theFifth(out gdouble) method. Yay!\\n");''')
+                        self.emit_c_p_impl('''    // END DEBUG''')
                 ###
                 
                 self.emit_c_p_impl("}")
@@ -530,12 +554,45 @@ class CodeGenerator:
         ''').format(**locals()))
         
         ### DEBUG - SHOULD BE REMOVED!
-        self.emit_c_p_impl('''    // DEBUG: After proxy has been created, call the method with test data for testing/example purposes.'''.format(**locals()))
-        self.emit_c_p_impl('''    void (*finishPointer)(GObject *obj, GAsyncResult *result, gpointer userdata);'''.format(**locals()))
-        self.emit_c_p_impl('''    finishPointer = &on_theOnlyMethod_finished;'''.format(**locals()))
-        self.emit_c_p_impl('''    printf("Proxy implementation sending data: %d and %d. Expecting result %d, %d_%d\\n", testInput1, testInput2, testInput1 + testInput2, testInput1, testInput2);'''.format(**locals()))
-        self.emit_c_p_impl('''    {i.camel_name}_theOnlyMethod(proxy, testInput1, testInput2, finishPointer);'''.format(**locals()))
-        self.emit_c_p_impl('''    //'''.format(**locals()))
+        for i in self.ifaces:
+            for m in i.methods:
+                if i.camel_name == "FrancaccodegenVerySimpleFrancaInterface":
+                    if m.name == "theOnlyMethod":
+                        self.emit_c_p_impl('''    // DEBUG: After proxy has been created, call the method with test data for testing/example purposes.'''.format(**locals()))
+                        self.emit_c_p_impl('''    void (*finishPointer)(GObject *obj, GAsyncResult *result, gpointer userdata);'''.format(**locals()))
+                        self.emit_c_p_impl('''    finishPointer = &on_{m.camel_name_with_dbus_signature}_finished;'''.format(**locals()))
+                        self.emit_c_p_impl('''    printf("Proxy implementation sending data: %d and %d. Expecting result %d, %d_%d\\n", testInput1, testInput2, testInput1 + testInput2, testInput1, testInput2);'''.format(**locals()))
+                        self.emit_c_p_impl('''    {i.camel_name}_{m.camel_name_with_dbus_signature}(proxy, testInput1, testInput2, finishPointer);'''.format(**locals()))
+                        self.emit_c_p_impl('''    // END DEBUG'''.format(**locals()))
+                        
+                    if m.camel_name_with_dbus_signature == "theThird____":
+                        self.emit_c_p_impl('''    // DEBUG: After proxy has been created, call the method with test data for testing/example purposes.'''.format(**locals()))
+                        self.emit_c_p_impl('''    void (*finishPointer3)(GObject *obj, GAsyncResult *result, gpointer userdata);'''.format(**locals()))
+                        self.emit_c_p_impl('''    finishPointer3 = &on_{m.camel_name_with_dbus_signature}_finished;'''.format(**locals()))
+                        self.emit_c_p_impl('''    printf("Proxy implementation calling theThird method...\\n");'''.format(**locals()))
+                        self.emit_c_p_impl('''    {i.camel_name}_{m.camel_name_with_dbus_signature}(proxy, finishPointer3);'''.format(**locals()))
+                        self.emit_c_p_impl('''    // END DEBUG'''.format(**locals()))
+                   
+                    if m.camel_name_with_dbus_signature == "theFourth__b__":
+                        self.emit_c_p_impl('''    // DEBUG: After proxy has been created, call the method with test data for testing/example purposes.'''.format(**locals()))
+                        self.emit_c_p_impl('''    void (*finishPointer4)(GObject *obj, GAsyncResult *result, gpointer userdata);'''.format(**locals()))
+                        self.emit_c_p_impl('''    finishPointer4 = &on_{m.camel_name_with_dbus_signature}_finished;'''.format(**locals()))
+                        self.emit_c_p_impl('''    printf("Proxy implementation calling theFourth(in gboolean) method...\\n");'''.format(**locals()))
+                        self.emit_c_p_impl('''    {i.camel_name}_{m.camel_name_with_dbus_signature}(proxy, TRUE, finishPointer4);'''.format(**locals()))
+                        self.emit_c_p_impl('''    // END DEBUG'''.format(**locals()))
+                   
+                    if m.camel_name_with_dbus_signature == "theFifth____d":
+                        self.emit_c_p_impl('''    // DEBUG: After proxy has been created, call the method with test data for testing/example purposes.'''.format(**locals()))
+                        self.emit_c_p_impl('''    void (*finishPointer5)(GObject *obj, GAsyncResult *result, gpointer userdata);'''.format(**locals()))
+                        self.emit_c_p_impl('''    finishPointer5 = &on_{m.camel_name_with_dbus_signature}_finished;'''.format(**locals()))
+                        self.emit_c_p_impl('''    printf("Proxy implementation calling theFifth(out gdouble) method...\\n");'''.format(**locals()))
+                        self.emit_c_p_impl('''    {i.camel_name}_{m.camel_name_with_dbus_signature}(proxy, finishPointer5);'''.format(**locals()))
+                        self.emit_c_p_impl('''    // END DEBUG'''.format(**locals()))     
+                        
+                            
+    
+    
+    
         ###
 
         self.emit_c_p_impl(dedent('''            

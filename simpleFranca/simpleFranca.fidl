@@ -6,6 +6,9 @@ interface verySimpleFrancaInterface {
     	major 1
     	minor 2
     }
+    
+    attribute UInt32 anIntegerAttribute
+    attribute String aStringAttribute readonly
 	
     method theOnlyMethod {
     	in {
@@ -16,5 +19,30 @@ interface verySimpleFrancaInterface {
     		Int32 sumOfNumbers
     		String stringOfNumbers
     	}
+    }
+    
+    method theSecondMethod {
+    	in {
+    		String theString
+    	}
+    	out {
+    		String anotherString
+    	}
+    }
+    
+    method theThird {
+    	
+    }
+    
+    method theFourth {
+    	in {
+            Boolean aBool    	
+    	}
+    }
+    
+    method theFifth {
+        out {
+            Double thisIsADouble
+        }    	
     }
 }

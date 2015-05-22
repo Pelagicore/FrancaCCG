@@ -29,49 +29,47 @@ class Common:
         The returned tuple has the following values, in order:
             - Type for "in"-parameter to generated function
             - Type for "out" parameter to generated function
-            - Type for use with D-Bus function
-            - function for casting D-Bus type to out-type
-            - function for casting out-type to D-Bus type
             - name of glib function to fetch value from gvariant
             - extra arguments to pass to gvariant getter (i.e. ", NULL" for strings)
+            - specifier for c function printf (used for DEBUGGING only) 
         """
 #TODO fix this. What to keep in this code generator? Optimally, all features of dbus should be supported.
         if sig == 'b':
-            return ('gboolean', 'gboolean', 'gboolean', "", "", 'g_variant_get_boolean', "")
+            return ('gboolean', 'gboolean', 'g_variant_get_boolean', "", "i")
         elif sig == 'y':
-            return ('guchar', 'guchar', 'guchar', "", "", 'g_variant_get_byte', "")
+            return ('guchar', 'guchar', 'g_variant_get_byte', "", "c")
         elif sig == 'n':
-            return ('gint16', 'gint16', 'gint16', "", "", 'g_variant_get_int16', "")
+            return ('gint16', 'gint16', 'g_variant_get_int16', "", "i")
         elif sig == 'q':
-            return ('guint16', 'guint16', 'guint16', "", "", 'g_variant_get_uint16', "")
+            return ('guint16', 'guint16', 'g_variant_get_uint16', "", "u")
         elif sig == 'i':
-            return ('gint32', 'gint32', 'gint32', "", "", 'g_variant_get_int32', "")
+            return ('gint32', 'gint32', 'g_variant_get_int32', "", "i")
         elif sig == 'u':
-            return ('guint32', 'guint32', 'guint32', "", "", 'g_variant_get_uint32', "")
+            return ('guint32', 'guint32', 'g_variant_get_uint32', "", "u")
         elif sig == 'x':
-            return ('gint64', 'gint64', 'gint64', "", "", 'g_variant_get_int64', "")
+            return ('gint64', 'gint64', 'g_variant_get_int64', "", "i")
         elif sig == 't':
-            return ('guint64', 'guint64', 'guint64', "", "", 'g_variant_get_uint64', "")
+            return ('guint64', 'guint64', 'g_variant_get_uint64', "", "u")
         elif sig == 'd':
-            return ('double', 'double', 'double', "", "", 'g_variant_get_double', "")
+            return ('double', 'double', 'g_variant_get_double', "", "f")
         elif sig == 's':
-            return ('const gchar *', 'const gchar *', 'Glib::ustring', "Glib::ustring", "", 'g_variant_get_string', ", NULL")
+            return ('const gchar *', 'const gchar *', 'g_variant_get_string', ", NULL", "s")
         elif sig == 'o':
-            return ('std::string', 'std::string', 'Glib::ustring', "", "", "", "")
+            return ('std::string', 'std::string', "", "", "")
         elif sig == 'g':
-            return ('std::string', 'std::string', 'Glib::ustring', "", "", "", "")
+            return ('std::string', 'std::string', "", "", "")
         elif sig == 'ay':
-            return ('std::string', 'std::string', 'std::string', "", "", "", "")
+            return ('std::string', 'std::string', "", "", "")
         elif sig == 'as':
-            return ('std::vector<std::string> ', 'std::vector<std::string>', 'std::vector<Glib::ustring>', "Common::glibStringVecToStdStringVec", "Common::stdStringVecToGlibStringVec", "", "")
+            return ('std::vector<std::string> ', 'std::vector<std::string>', "", "", "")
         elif sig == 'ao':
-            return ('std::vector<std::string> ', 'std::vector<std::string>', 'std::vector<std::string>', "", "", "", "")
+            return ('std::vector<std::string> ', 'std::vector<std::string>', "", "", "")
         elif sig == 'aay':
-            return ('std::vector<std::string> ', 'std::vector<std::string>', 'std::vector<std::string>', "", "", "", "")
+            return ('std::vector<std::string> ', 'std::vector<std::string>', "", "", "")
         elif sig == 'v':
-            return ('Glib::VariantBase', 'Glib::VariantBase', '', '', '', '', '')
+            return ('Glib::VariantBase', 'Glib::VariantBase', '', '', '')
         else:
-            return (None, None, None, None, None, None, None)
+            return (None, None, None, None, None)
 
 class Annotation:
     def __init__(self, key, value):
@@ -90,36 +88,36 @@ class Arg:
             self.name = 'unnamed_arg%d'%arg_number
         self.nameWithIndex = self.name + "_" + direction
         
-#TODO save index of argument here since it is used at many places
+
         
-        (self.ctype_in, self.ctype_out, self.ctype_get, self.ctype_get_cast, self.ctype_to_dbus, self.g_variant_getter, self.g_variant_getter_extra_arguments) = Common.cSignatureForDbusSignature(self.signature)
+        (self.ctype_in, self.ctype_out, self.g_variant_getter, self.g_variant_getter_extra_arguments, self.c_printf_specifier) = Common.cSignatureForDbusSignature(self.signature)
 
-        self.ctype_send = lambda name, param, c_class_name: "Glib::Variant<"+self.ctype_get+"> "+name+" = Glib::Variant<"+self.ctype_get+">::create(arg_"+param+");"
-        self.cvalue_get = lambda varname, outvar, idx, c_class_name: "Glib::Variant<"+self.ctype_in+"> "+varname+";\n    wrapped.get_child("+varname+","+idx+");\n    "+outvar+" = "+varname+".get();"
+#        self.ctype_send = lambda name, param, c_class_name: "Glib::Variant<"+self.ctype_get+"> "+name+" = Glib::Variant<"+self.ctype_get+">::create(arg_"+param+");"
+#        self.cvalue_get = lambda varname, outvar, idx, c_class_name: "Glib::Variant<"+self.ctype_in+"> "+varname+";\n    wrapped.get_child("+varname+","+idx+");\n    "+outvar+" = "+varname+".get();"
 
-        if self.signature == 'as':
-            self.ctype_send = lambda name, param, c_class_name: "Glib::Variant<std::vector<Glib::ustring> > "+name+" = Glib::Variant<std::vector<Glib::ustring> >::create(" + c_class_name + "Common::stdStringVecToGlibStringVec(arg_" + param + "));"
-            self.cvalue_get = lambda varname, outvar, idx, c_class_name: "Glib::VariantContainerBase "+varname+";\n" +\
-                                 "    wrapped.get_child("+varname+", "+idx+");\n" +\
-                                 "    " + c_class_name + "Common::unwrapList(".format(**locals())+outvar+", "+varname+");"
-        elif self.signature == 'ao':
-            self.ctype_send = lambda name, param, c_class_name: "Glib::Variant<std::vector<std::string> > "+name+" = Glib::Variant<std::vector< std::string > >::create_from_object_paths(arg_"+param+");"
-            self.cvalue_get = lambda varname, outvar, idx, c_class_name: "Glib::VariantContainerBase "+varname+";\n" +\
-                                 "    wrapped.get_child("+varname+", "+idx+");\n" +\
-                                 "    " + c_class_name + "Common::unwrapList(".format(**locals())+outvar+", "+varname+");"
-        elif self.signature == 'aay':
-            self.ctype_send = lambda name, param, c_class_name: "Glib::Variant<std::vector<std::string> > "+name+" = Glib::Variant<std::vector<std::string> >::create(arg_"+param+");"
-            self.cvalue_get = lambda varname, outvar, idx, c_class_name: "Glib::VariantContainerBase "+varname+";\n" +\
-                                 "    wrapped.get_child("+varname+", "+idx+");\n" +\
-                                 "    " + c_class_name + "Common::unwrapList("+outvar+", "+varname+");"
-        elif self.signature == 'g':
-            self.ctype_send = lambda name, param, c_class_name: "Glib::VariantStringBase "+name+";\n Glib::VariantStringBase::create_signature("+name+", arg_"+param+".c_str());"
-        elif self.signature == 'o':
-            self.ctype_send = lambda name, param, c_class_name: "Glib::VariantStringBase "+name+";\n Glib::VariantStringBase::create_object_path("+name+", arg_"+param+".c_str());"
-        elif self.signature == 'v':
-            self.ctype_send = lambda name, param, c_class_name: "Glib::VariantBase params = arg_" + param + ";"
-            self.cvalue_get = lambda varname, outvar, idx, c_class_name: 'GVariant *output;\n' +\
-                                '    g_variant_get_child(wrapped.gobj(), 0, "v", &output);\n\n' + "    " + outvar + ' = Glib::VariantBase(output);'
+#        if self.signature == 'as':
+#            self.ctype_send = lambda name, param, c_class_name: "Glib::Variant<std::vector<Glib::ustring> > "+name+" = Glib::Variant<std::vector<Glib::ustring> >::create(" + c_class_name + "Common::stdStringVecToGlibStringVec(arg_" + param + "));"
+#            self.cvalue_get = lambda varname, outvar, idx, c_class_name: "Glib::VariantContainerBase "+varname+";\n" +\
+#                                 "    wrapped.get_child("+varname+", "+idx+");\n" +\
+#                                 "    " + c_class_name + "Common::unwrapList(".format(**locals())+outvar+", "+varname+");"
+#        elif self.signature == 'ao':
+#            self.ctype_send = lambda name, param, c_class_name: "Glib::Variant<std::vector<std::string> > "+name+" = Glib::Variant<std::vector< std::string > >::create_from_object_paths(arg_"+param+");"
+#            self.cvalue_get = lambda varname, outvar, idx, c_class_name: "Glib::VariantContainerBase "+varname+";\n" +\
+#                                 "    wrapped.get_child("+varname+", "+idx+");\n" +\
+#                                 "    " + c_class_name + "Common::unwrapList(".format(**locals())+outvar+", "+varname+");"
+#        elif self.signature == 'aay':
+#            self.ctype_send = lambda name, param, c_class_name: "Glib::Variant<std::vector<std::string> > "+name+" = Glib::Variant<std::vector<std::string> >::create(arg_"+param+");"
+#            self.cvalue_get = lambda varname, outvar, idx, c_class_name: "Glib::VariantContainerBase "+varname+";\n" +\
+#                                 "    wrapped.get_child("+varname+", "+idx+");\n" +\
+#                                 "    " + c_class_name + "Common::unwrapList("+outvar+", "+varname+");"
+#        elif self.signature == 'g':
+#            self.ctype_send = lambda name, param, c_class_name: "Glib::VariantStringBase "+name+";\n Glib::VariantStringBase::create_signature("+name+", arg_"+param+".c_str());"
+#        elif self.signature == 'o':
+#            self.ctype_send = lambda name, param, c_class_name: "Glib::VariantStringBase "+name+";\n Glib::VariantStringBase::create_object_path("+name+", arg_"+param+".c_str());"
+#        elif self.signature == 'v':
+#            self.ctype_send = lambda name, param, c_class_name: "Glib::VariantBase params = arg_" + param + ";"
+#            self.cvalue_get = lambda varname, outvar, idx, c_class_name: 'GVariant *output;\n' +\
+#                                '    g_variant_get_child(wrapped.gobj(), 0, "v", &output);\n\n' + "    " + outvar + ' = Glib::VariantBase(output);'
 
         if (self.ctype_in, self.ctype_out) == (None, None):
             print "Unknown signature: " + self.signature
@@ -164,9 +162,9 @@ class Method:
         outArgSig = ""
         implSig = []
         pointerSig = []
-        proxyHeaderInArgs = []
-        proxyHeaderOutArgs = []
-        proxyImplResults = []
+        proxyHeaderInArgs = [""] ## Add empty string to only add comma in the beginning if there are actually any arguments
+        proxyHeaderOutArgs = [""]
+        proxyImplResults = [""]
         
         for a in self.in_args:
             sigListIn.append(a.signature)
@@ -194,15 +192,23 @@ class Method:
         self.proxy_header_outarg_string = ", ".join(proxyHeaderOutArgs) # gint32 *arg_varOutput0
         self.pointer_signature = ", ".join(pointerSig) # gint16, gint16, gint32*
         self.implementation_signature = ", ".join(implSig) # gint16 varInput0, gint16 varInput1, gint32 *varOutput0
-        self.in_arguments_variant_signature = inArgSig # nn
-        self.out_arguments_variant_signature = outArgSig # i
-        self.in_arguments_string = ", ".join(inArgList) # arg_varInput0, arg_varInput1
-        self.out_arguments_string = ", ".join(outArgList) # output0, output1, output2
+#        self.in_arguments_variant_signature = inArgSig # nn
+#        self.out_arguments_variant_signature = outArgSig # i
+#        self.in_arguments_string = ", ".join(inArgList) # arg_varInput0, arg_varInput1
+#        self.out_arguments_string = ", ".join(outArgList) # output0, output1, output2
         self.argument_string = ", ".join(argList) # input0, input1, &output0
         self.camel_name_with_dbus_signature = self.name + sigStr
         self.capital_name_with_dbus_signature = self.name.upper() + sigStr.upper()
 
+        if (inArgSig == ""):
+            self.new_in_arguments_gvariant = "NULL"
+        else:
+            self.new_in_arguments_gvariant = "g_variant_new (\"(" + inArgSig + ")\", " + ", ".join(inArgList) + ")"
 
+        if (outArgSig == ""):
+            self.new_out_arguments_gvariant = "NULL"
+        else:
+            self.new_out_arguments_gvariant = "g_variant_new (\"(" + outArgSig + ")\", " + ", ".join(outArgList) + ")"
 
 class Signal:
     def __init__(self, name):
@@ -240,7 +246,7 @@ class Property:
         else:
             raise RuntimeError('Invalid access type %s'%self.access)
 
-        (self.cpptype_in, self.cpptype_out, self.cpptype_get, self.cpptype_get_cast, self.cpptype_to_dbus) = Common.cppSignatureForDbusSignature(signature)
+        (self.cpptype_in, self.cpptype_out, self.cpptype_get, self.cpptype_get_cast, self.cpptype_to_dbus) = Common.cSignatureForDbusSignature(signature)
 
         if (self.cpptype_in, self.cpptype_out) == (None, None):
             print "Unknown signature: " + self.signature
@@ -259,7 +265,7 @@ class Property:
 
         # recalculate arg
         self.arg.annotations = self.annotations
-        self.arg.post_process(0)
+        self.arg.post_process(0, "")
 
 class Interface:
     def __init__(self, name):
