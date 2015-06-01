@@ -32,7 +32,6 @@ DNamespaceID.		NamespaceID ::= Id ;
 separator NamespaceID "." ;
 
 
-
 -- Interfaces consist of a number of interface body items.
 DIBody.			IBody ::= [IBodyItem] ;
 terminator IBodyItem "" ;
@@ -44,6 +43,7 @@ DMethod.		IBodyItem ::= "method" Id "{" "}" ;
 DInMethod.		IBodyItem ::= "method" Id "{" "in" "{" [InVari] "}" "}" ;
 DOutMethod.		IBodyItem ::= "method" Id "{" "out" "{" [OutVari] "}" "}" ;
 DInOutMethod.		IBodyItem ::= "method" Id "{" "in" "{" [InVari] "}" "out" "{" [OutVari] "}" "}" ;
+
 
 -- Version is another interface body item.
 DVersion.		IBodyItem ::= "version" "{" "major" Integer "minor" Integer "}" ;
@@ -91,7 +91,6 @@ DTypeDefIdent.		TypeDefId ::= Id ;
 
 -- Franca IDL types
 -- Note that Float, ByteBuffer and Int8 are not defined as D-Bus types in the D-Bus standard.
-
 DUIntEight.		Type ::= "UInt8" ;
 DIntEight.		Type ::= "Int8" ;
 DUIntSixteen.		Type ::= "UInt16" ;
@@ -109,8 +108,6 @@ DCustomType. 		Type ::= Id ;
 
 
 -- Identifiers
-
-
 token Id (letter (letter | digit | '_')*) ;
 
 

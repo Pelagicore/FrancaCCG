@@ -5,9 +5,7 @@
 #include <string>
 #include "XMLGenerator.H"
 #include <iostream>
-#include "Parser.H"
-#include "Printer.H"
-#include "Absyn.H"
+
 
 
 
@@ -118,21 +116,66 @@ GenerateDBusXML::~GenerateDBusXML(void)
 }
 
 
+
+
+
+
 char* GenerateDBusXML::generate(Visitable *v, String s)
 {
   _n_ = 0;
   packageName = "";
   pathToImportFile = s;
   bufReset();
+  
+  //createCustomTypesList(v, s);  
+
   v->accept(this);
   return buf_;
 }
 
 
+void GenerateDBusXML::createCustomTypesList(Visitable *v, String s) {
+    CustomTypesParser *parser = new CustomTypesParser();
+    finishedTypes = parser->findCustomTypes(v, s);
+    // finishedTypes now contain a list of all custom types in fidl file, together with their d-bus signature
+}
 
 
+String GenerateDBusXML::getCustomTypeSig(String name) {
+    for (std::vector<CustomType>::iterator it = finishedTypes.begin(); it != finishedTypes.end(); ++it) {
+        if (it->getName().compare(name) == 0) {
+            return it->getDBusSign();
+        }
+    }
+    // If not found, error in fidl file. TODO handle it
+    return "";
+}
 
+void GenerateDBusXML::setNameOfEnum(String name) {
+    for (std::vector<CustomType>::iterator it = finishedTypes.begin(); it != finishedTypes.end(); ++it) {
+        if (it->getName().compare(name) == 0) {
+            if (it->getType() == FRANCA_ENUM) {
+                // If the custom type found is an enum, set nameOfEnum to its name.
+                nameOfEnum = name;
+            }
+        }
+    }
+}
 
+void GenerateDBusXML::renderEnumMembersIfNeeded() {
+    if (nameOfEnum.compare("") != 0) {
+        // nameOfEnum has been set, render all members of that enum    
+        for (std::vector<CustomType>::iterator it = finishedTypes.begin(); it != finishedTypes.end(); ++it) {
+            if (it->getName().compare(nameOfEnum) == 0) {
+                for (int i = 0; i != it->getNbrOfEnumMembers(); i++) {
+                    render("<annotation name=\"com.pelagicore.FrancaCCodeGen.Enum." + it->getName() + "." + it->getEnumMember(i) + "\" value=\"" + it->getEnumValue(i) + "\"/>");
+                    newIndLine();
+                }     
+            }
+        }
+    }
+    nameOfEnum = "";
+}
 
 
 ////////////////////////////////////////////////////////////
@@ -173,7 +216,7 @@ void GenerateDBusXML::visitType(Type*p) {} //abstract class
 // PROGRAM - visitor functions
 ////////////////////////////////////////////////////////////
 
-//TODO fix this method
+
 void GenerateDBusXML::visitProg(Prog* p)
 {
   render("<!DOCTYPE node PUBLIC \"-//freedesktop//DTD D-BUS Object Introspection 1.0//EN\"\n");
@@ -200,10 +243,18 @@ void GenerateDBusXML::visitProg(Prog* p)
 ////////////////////////////////////////////////////////////
 // FILE IMPORT - visitor functions
 ////////////////////////////////////////////////////////////
+  
+  ///// HANDLED IN CustomTypesParser FOR NOW!
+  ///// Should be able to import other e.g. interfaces here.
+  ///// TODO
+
+
 
 void GenerateDBusXML::visitDImport(DImport *dimport)
 {
-  /* Code For DImport Goes Here */
+
+
+  /* 
   importedNameSpace = "";
   importedFileName = "";
   
@@ -274,10 +325,13 @@ void GenerateDBusXML::visitDImport(DImport *dimport)
   }
   
   fclose(importedFile);
+  
+  */
 }
 
 void GenerateDBusXML::visitDFileName(DFileName *dfilename)
 {
+/*
 
   // Save the file name but don't print it (visitId will append it to buffer)
   int old_cur = cur_;
@@ -293,12 +347,12 @@ void GenerateDBusXML::visitDFileName(DFileName *dfilename)
   // Buffer is now reset to before filename was processed,
   // and file name is saved to importedFileName.
 
-  
+  */
 }
 
 void GenerateDBusXML::visitDFileNameNoEnd(DFileNameNoEnd *dfilenamenoend)
 {
-
+/*
   // Save the file name but don't print it (visitId will append it to buffer)
   int old_cur = cur_;
   visitId(dfilenamenoend->id_);
@@ -309,12 +363,14 @@ void GenerateDBusXML::visitDFileNameNoEnd(DFileNameNoEnd *dfilenamenoend)
   cur_ = old_cur;
   // Buffer is now reset to before filename was processed,
   // and file name is saved to importedFileName.
-  
+  */
 }
 
 void GenerateDBusXML::visitDFileEnding(DFileEnding *dfileending)
 {
+/*
   visitId(dfileending->id_);
+  */
 }
 
 
@@ -420,7 +476,8 @@ void GenerateDBusXML::visitDPackageName(DPackageName *dpackagename)
 
 void GenerateDBusXML::visitDEnumDef(DEnumDef *denumdef)
 {
-  enum_empty = 1;
+  /*
+  enum_empty = true;
 
   render("<annotation name=\"com.pelagicore.FrancaCCodeGen.Enum\" value=\"name=");
   visitId(denumdef->id_);
@@ -434,11 +491,14 @@ void GenerateDBusXML::visitDEnumDef(DEnumDef *denumdef)
   
   render("}\"/>");
   newIndLine();
+  */
 }
 
 void GenerateDBusXML::visitDExtendedEnumDef(DExtendedEnumDef *dextendedenumdef)
 {
-  enum_empty = 1;
+  /*
+  
+  enum_empty = true;
  
 
   render("<annotation name=\"com.pelagicore.FrancaCCodeGen.Enum\" value=\"name=");
@@ -459,52 +519,59 @@ void GenerateDBusXML::visitDExtendedEnumDef(DExtendedEnumDef *dextendedenumdef)
   
   render("}\"/>");
   newIndLine();
-
+  */
+  
 }
 
 void GenerateDBusXML::visitDEnum(DEnum *denum)
 {
-  /* Code For DEnum Goes Here */
-  enum_empty = 0;
+  /*
+  enum_empty = false;
   visitId(denum->id_);
   render(", ");
-
+  */
 }
 
 void GenerateDBusXML::visitDEnumValue(DEnumValue *denumvalue)
 {
-  /* Code For DEnumValue Goes Here */
-  enum_empty = 0;
+  /*
+  enum_empty = false;
   visitId(denumvalue->id_);
   render("=");
   visitInteger(denumvalue->integer_);
   render(", ");
+  */
 }
 
 
 void GenerateDBusXML::visitDEnumList(DEnumList *denumlist)
 {
-  /* Code For DEnumList Goes Here */
+  /*
 
   denumlist->listenum_->accept(this);
+  
+  */
 
 }
 
 void GenerateDBusXML::visitDEnumIdent(DEnumIdent *denumident)
 {
-  /* Code For DEnumIdent Goes Here */
+  /*
 
   visitId(denumident->id_);
+  */
 
 }
 
 
 void GenerateDBusXML::visitListEnum(ListEnum* listenum)
 {
+  /*
   for (ListEnum::iterator i = listenum->begin() ; i != listenum->end() ; ++i)
   {
     (*i)->accept(this);
   }
+  */
 }
 
 
@@ -532,7 +599,7 @@ void GenerateDBusXML::visitListEnum(ListEnum* listenum)
 ////////////////////////////////////////////////////////////
 
 
-//TODO fix this method
+
 void GenerateDBusXML::visitDInterface(DInterface* p)
 {
 
@@ -582,8 +649,6 @@ void GenerateDBusXML::visitDVersion(DVersion* p) {
 
 void GenerateDBusXML::visitDTypeCollection(DTypeCollection *dtypecollection)
 {
-  // TODO Handle type collections in a good way
-
   //visitId(dtypecollection->id_);
   dtypecollection->ibody_->accept(this);
 }
@@ -613,6 +678,7 @@ void GenerateDBusXML::visitListDef(ListDef *listdef)
 
 void GenerateDBusXML::visitDTypeDef(DTypeDef *dtypedef)
 {
+/*
   render("<annotation name=\"com.pelagicore.FrancaCCodeGen.Typedef\" value=\"{");
   dtypedef->typedefid_->accept(this);
   render(", ");
@@ -620,11 +686,12 @@ void GenerateDBusXML::visitDTypeDef(DTypeDef *dtypedef)
   dtypedef->type_->accept(this);
   render("}\"/>");
   newIndLine();
-
+*/
 }
 
 void GenerateDBusXML::visitDTypeDefCustom(DTypeDefCustom *dtypedefcustom)
 {
+/*
   render("<annotation name=\"com.pelagicore.FrancaCCodeGen.Typedef\" value=\"{");
   dtypedefcustom->typedefid_->accept(this);
   render(", ");
@@ -632,14 +699,17 @@ void GenerateDBusXML::visitDTypeDefCustom(DTypeDefCustom *dtypedefcustom)
   visitId(dtypedefcustom->id_);
   render("}\"/>");
   newIndLine();
+  */
 }
 
 void GenerateDBusXML::visitDTypeDefIdent(DTypeDefIdent *dtypedefident)
 {
-  /* Code For DTypeDefIdent Goes Here */
+  /*
 
   visitId(dtypedefident->id_);
 
+
+*/
 }
 
 
@@ -721,7 +791,6 @@ void GenerateDBusXML::visitDInOutMethod(DInOutMethod* p)
 }
 
 
-//TODO fix this method
 void GenerateDBusXML::visitDInVar(DInVar* p)
 {
   render("<arg direction=\"in\" name=\"");
@@ -731,15 +800,20 @@ void GenerateDBusXML::visitDInVar(DInVar* p)
   render("\">");
   
   //TODO documentation/annotations
+  increaseIndent();
   newIndLine();
-
+  renderEnumMembersIfNeeded();
+  removeLine();
+  decreaseIndent();
+  newIndLine();
+  
   render("</arg>");
 
   newIndLine();
 }
 
 
-//TODO fix this method
+
 void GenerateDBusXML::visitDOutVar(DOutVar* p)
 {
   render("<arg direction=\"out\" name=\"");
@@ -749,8 +823,13 @@ void GenerateDBusXML::visitDOutVar(DOutVar* p)
   render("\">");
 
   //TODO documentation/annotations
+  increaseIndent();
   newIndLine();
-
+  renderEnumMembersIfNeeded();
+  removeLine();
+  decreaseIndent();
+  newIndLine();
+  
   render("</arg>");
   newIndLine();
 }
@@ -815,8 +894,15 @@ void GenerateDBusXML::visitDAttrib(DAttrib *dattrib)
   render("\" type=\"");
   dattrib->type_->accept(this);
   render("\">");
-
+  
+  increaseIndent();
   newIndLine();
+  renderEnumMembersIfNeeded();
+  removeLine();
+  decreaseIndent();
+  newIndLine();
+
+  
   render("</property>");
   newIndLine();
 }
@@ -831,7 +917,14 @@ void GenerateDBusXML::visitDAttribReadOnly(DAttribReadOnly *dattribreadonly)
   dattribreadonly->type_->accept(this);
   render("\">");
 
+  increaseIndent();
   newIndLine();
+  renderEnumMembersIfNeeded();
+  removeLine();
+  decreaseIndent();
+  newIndLine();
+
+  
   render("</property>");
   newIndLine();
 }
@@ -848,6 +941,8 @@ void GenerateDBusXML::visitDAttribNoSub(DAttribNoSub *dattribnosub)
   increaseIndent();
   newIndLine();
 
+
+  renderEnumMembersIfNeeded();
   render("<annotation name=\"com.pelagicore.FrancaCCodeGen.NoSubscriptions\" value=\"True\"/>");
   
   removeLine();
@@ -871,6 +966,7 @@ void GenerateDBusXML::visitDAttribReadOnlyNoSub(DAttribReadOnlyNoSub *dattribrea
   increaseIndent();
   newIndLine();
 
+  renderEnumMembersIfNeeded();
   render("<annotation name=\"com.pelagicore.FrancaCCodeGen.NoSubscriptions\" value=\"True\"/>");
   
   removeLine();
@@ -896,6 +992,7 @@ void GenerateDBusXML::visitDAttribReadOnlyNoSub2(DAttribReadOnlyNoSub2 *dattribr
   increaseIndent();
   newIndLine();
 
+  renderEnumMembersIfNeeded();
   render("<annotation name=\"com.pelagicore.FrancaCCodeGen.NoSubscriptions\" value=\"True\"/>");
   
   removeLine();
@@ -933,9 +1030,9 @@ void GenerateDBusXML::visitDUIntEight(DUIntEight* p)
 
 void GenerateDBusXML::visitDIntEight(DIntEight* p)
 {
-  //TODO Not in D-Bus?
-  render("Int8 (ERROR: Not in D-Bus?)");
 
+  std::cout << "ERROR: Franca type 'Int8' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
+  exit(1);
 }
 
 
@@ -980,10 +1077,11 @@ void GenerateDBusXML::visitDBoolean(DBoolean* p)
   render("b");
 }
 
-//TODO fix this method
+
 void GenerateDBusXML::visitDFloat(DFloat* p)
 {
-  render("Float (ERROR: Not in D-Bus?)");
+  std::cout << "ERROR: Franca type 'Float' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
+  exit(1);
 }
 
 
@@ -998,10 +1096,11 @@ void GenerateDBusXML::visitDString(DString* p)
   render("s");
 }
 
-//TODO fix this method
+
 void GenerateDBusXML::visitDByteBuffer(DByteBuffer* p)
 {
-  render("ByteBuffer (ERROR: Not in D-Bus?)");
+  std::cout << "ERROR: Franca type 'ByteBuffer' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
+  exit(1);
 }
 
 
@@ -1060,8 +1159,20 @@ void GenerateDBusXML::visitDCustomType(DCustomType *dcustomtype)
   //TODO
   // Custom type can (at the moment) either be a typedef, or an enumeration
   // could also be a struct, union, map, array - but not supported atm
-  render("TODO");
-  //visitId(dcustomtype->id_);
+  
+  // Don't render custom type name, render it's dbus signature instead
+  
+  // Save the file name but don't print it (visitId will append it to buffer)
+  String nameOfCustomType;
+  int old_cur = cur_;
+  visitId(dcustomtype->id_);  
+  for (int i = old_cur; i< cur_; i++) {
+  	nameOfCustomType.push_back(buf_[i]);
+  }
+  cur_ = old_cur;
+  render(getCustomTypeSig(nameOfCustomType));
+  setNameOfEnum(nameOfCustomType);
+  
 
 }
 

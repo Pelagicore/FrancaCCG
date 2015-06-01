@@ -1,0 +1,30 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+ "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="org.genivi.mediamanager">
+   <interface name="org.genivi.mediamanager.Indexer">
+      <property access="read" name="indexerStatus" type="u">
+         <annotation name="com.pelagicore.FrancaCCodeGen.Enum.IndexerStatus.RUNNING" value="0"/>
+         <annotation name="com.pelagicore.FrancaCCodeGen.Enum.IndexerStatus.STOPPED" value="1"/>
+         <annotation name="com.pelagicore.FrancaCCodeGen.Enum.IndexerStatus.IDLE" value="2"/>
+         <annotation name="com.pelagicore.FrancaCCodeGen.NoSubscriptions" value="True"/>
+      </property>
+      <method name="getDatabasePath">
+         <arg direction="out" name="output" type="s">
+         </arg>
+         <arg direction="out" name="e" type="u">
+            <annotation name="com.pelagicore.FrancaCCodeGen.Enum.IndexerError.BACKEND_UNREACHABLE" value="0"/>
+            <annotation name="com.pelagicore.FrancaCCodeGen.Enum.IndexerError.NO_ERROR" value="1"/>
+         </arg>
+      </method>
+      <method name="stopIndexing">
+         <arg direction="out" name="s" type="s">
+         </arg>
+      </method>
+      <method name="startIndexing">
+         <arg direction="out" name="e" type="u">
+            <annotation name="com.pelagicore.FrancaCCodeGen.Enum.IndexerError.BACKEND_UNREACHABLE" value="0"/>
+            <annotation name="com.pelagicore.FrancaCCodeGen.Enum.IndexerError.NO_ERROR" value="1"/>
+         </arg>
+      </method>
+   </interface>
+</node>

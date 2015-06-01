@@ -6,7 +6,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <string>
-
+#include "CustomTypesParser.H"
+#include "Parser.H"
+#include "Printer.H"
 
 /* Certain applications may improve performance by changing the buffer size */
 #define BUFFER_INITIAL 2000
@@ -19,6 +21,8 @@ class GenerateDBusXML : public Visitor
  protected:
   int _n_, _i_;
   String packageName;
+  String nameOfEnum;
+  std::vector<CustomType> finishedTypes;
  
   
   /* The following are simple heuristics for rendering terminals */
@@ -38,6 +42,10 @@ class GenerateDBusXML : public Visitor
   GenerateDBusXML(void);
   ~GenerateDBusXML(void);
   char* generate(Visitable* v, String s);
+  void createCustomTypesList(Visitable *v, String s);
+  String getCustomTypeSig(String name);
+  void setNameOfEnum(String name);
+  void renderEnumMembersIfNeeded();
 
   void visitPackageName(String s_);
   void visitProgram(Program *p); /* abstract class */
@@ -186,9 +194,9 @@ class GenerateDBusXML : public Visitor
   }
   char *buf_;
   int cur_, buf_size;
-  bool enum_empty;
-  String importedFileName;
-  String importedNameSpace;
+  //bool enum_empty;
+  //String importedFileName;
+  //String importedNameSpace;
   String pathToImportFile;
 };
 

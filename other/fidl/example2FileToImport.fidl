@@ -1,0 +1,13 @@
+package Francaccodegen
+
+typeCollection MyTypes {
+
+	typedef MyInt is UInt32
+	typedef MySmallerInt is UInt16
+
+	enumeration MyNumbers {
+		One
+		Two
+		Three		
+	}
+}

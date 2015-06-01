@@ -70,7 +70,8 @@ int main(int argc, char ** argv)
   Program *parse_tree = pProgram(input);
   if (parse_tree)
   {
-    /*
+  
+    /* NOT USED FOR THIS PROJECT
     printf("\nParse Succesful!\n");
     printf("\n[Abstract Syntax]\n");
     ShowAbsyn *s = new ShowAbsyn();
@@ -78,21 +79,24 @@ int main(int argc, char ** argv)
     printf("[Linearized Tree]\n");
     PrintAbsyn *p = new PrintAbsyn();
     printf("%s\n\n", p->print(parse_tree));
-    
     */
-    printf("\n\n[D-Bus XML Introspection]\n\n");
-    GenerateDBusXML *g = new GenerateDBusXML();   
-    printf("%s\n\n", g->generate(parse_tree, pathToImportFile));
-
-    //TODO shouldn't generate twice... save it instead.
-    printf("Done generating and printing D-Bus XML Introspection! Generating to file...\n");
     
+    
+    
+    // Generate XML file
     GenerateDBusXML *g2 = new GenerateDBusXML();
+    g2->createCustomTypesList(parse_tree, pathToImportFile);
     output << g2->generate(parse_tree, pathToImportFile);
-    printf("Done. Closing file...\n");
     output.close();
-    printf("Done. Finished generating D-Bus XML Introspection to file.\n");
-    printf("All done!\n");
+    cout << "Finished generating D-Bus XML Introspection to file " << outputFilename << ". File content: " << endl << endl;
+    
+    // Print generated file
+    ifstream generatedFile(outputFilename.c_str());
+    string templine;
+    while (getline(generatedFile, templine)) {
+        cout << templine << endl;
+    }
+    
     
     return 0;
   }

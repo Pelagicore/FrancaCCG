@@ -16,7 +16,7 @@ distclean:
 bnfc:	
 	bnfc -cpp_stl franca.cf
 
-RunFCCG: bnfc Absyn.o Lexer.o Parser.o Printer.o XMLGenerator.o GenerateXML.o
+RunFCCG: bnfc Absyn.o Lexer.o Parser.o Printer.o XMLGenerator.o GenerateXML.o CustomTypesParser.o
 	@echo "Linking RunFCCG..."
 	${CC} ${CCFLAGS} *.o -o RunFCCG
 
@@ -40,8 +40,11 @@ Printer.o: Printer.C Printer.H Absyn.H
 
 Skeleton.o: Skeleton.C Skeleton.H Absyn.H
 	${CC} ${CCFLAGS} -c Skeleton.C
+	
+CustomTypesParser.o: CustomTypesParser.C Absyn.H
+	${CC} ${CCFLAGS} -c CustomTypesParser.C
 
-XMLGenerator.o: XMLGenerator.C XMLGenerator.H Absyn.H
+XMLGenerator.o: XMLGenerator.C XMLGenerator.H Absyn.H CustomTypesParser.H
 	${CC} ${CCFLAGS} -c XMLGenerator.C
 
 GenerateXML.o: GenerateXML.C Parser.H Printer.H Absyn.H XMLGenerator.H
