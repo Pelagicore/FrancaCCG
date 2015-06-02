@@ -295,14 +295,15 @@ void CustomTypesParser::visitDImport(DImport *dimport)
   
   // std::cout << "DEBUG: importedNameSpace: " << importedNameSpace << std::endl; 
   // Now namespace and file name are saved, and we can open the file.
-  
- 
+  std::string fullFilePath;
   FILE *importedFile;
   
   if (pathToImportFile == "") {
     importedFile = fopen(importedFileName.c_str(), "r");
+    fullFilePath = importedFileName;
   } else {
     importedFile = fopen((pathToImportFile + "/" + importedFileName).c_str(), "r");
+    fullFilePath = pathToImportFile + "/" + importedFileName;
   }
   
   if (!importedFile)
@@ -317,7 +318,20 @@ void CustomTypesParser::visitDImport(DImport *dimport)
   // Should only import the specified namespace! TODO
   
   
+  
+  // The code redirecting cout and printing line where parse error occurs is copied from GenerateXML. Should probably be refactored! TODO
+  
+  // Temporarily redirect cout, so that we can save the line number of any parse error.
+  std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
+  std::ostringstream strCout;
+  std::cout.rdbuf(strCout.rdbuf());
+  
   Program *imported_parse_tree = pProgram(importedFile);
+  
+  // Restore old cout and save the contents of temp cout.
+  std::cout.rdbuf(oldCoutStreamBuf);
+  std::string parserOutput = strCout.str();
+  
   if (imported_parse_tree)
   {
     CustomTypesParser *parser = new CustomTypesParser();
@@ -327,9 +341,35 @@ void CustomTypesParser::visitDImport(DImport *dimport)
     
 
   } else {
-    std::cout << "Error parsing imported fidl file: " << importedFileName << std::endl;
-  }
+    // Find the line number of the potential parse error
+    size_t indexOfLineNbr = parserOutput.rfind("line ");
+    if (indexOfLineNbr != -1) {
+      // An error message containing a line number was found. Save the line number.
+      std::string lineNbrStr = parserOutput.substr(indexOfLineNbr + 5, parserOutput.length());
+      //std::cout << "lineNbrStr = \"" << lineNbrStr << "\"" << std::endl;
+      int lineNbr;
+      std::istringstream (lineNbrStr) >> lineNbr;
+
+      // Reopen the file to find the line with errors. Not the best solution but works.
+      std::ifstream theFidlFile(fullFilePath.c_str());
+      std::string currentLine;
+      if (theFidlFile.is_open())
+      {
+        for (int i = 0; i < lineNbr; i++) {
+          std::getline(theFidlFile, currentLine);
+          if (i == lineNbr - 1) {
+            // Print the content of line number of parse error
+            std::cout << "Error parsing file " << fullFilePath << " at line " << lineNbr << ":" << std::endl << currentLine << std::endl;
+          }
+        }
+        theFidlFile.close();
+      }
   
+  
+  
+    std::cout << "Error parsing imported fidl file: " << importedFileName << std::endl;
+    }
+  }
   fclose(importedFile);
   
 }

@@ -20,11 +20,29 @@ class GenerateDBusXML : public Visitor
   ~GenerateDBusXML(void);
   char* generate(Visitable* v, std::string s);
   void createCustomTypesList(Visitable *v, std::string s);
-  std::string getCustomTypeSig(std::string name);
+
+ protected:
+  int _n_, _i_;
+  std::string packageName;
+  std::string nameOfEnum;
+  std::vector<CustomType> finishedTypes;
+  std::string pathToImportFile;
+
+  void newIndLine(void);
+  void increaseIndent(void);
+  void decreaseIndent(void);
+  void render(Char c);
+  void render(std::string s);
+  void indent(void);
+  void removeLastDot(void);
+  void removeLastComma(void);
+  void removeLine(void);
+ 
+ 
+ std::string getCustomTypeSig(std::string name);
   void setNameOfEnum(std::string name);
   void renderEnumMembersIfNeeded();
   void saveNamespaceId(std::string s);
-
   
   void visitPackageName(std::string s_);
   void visitProgram(Program *p); /* abstract class */
@@ -105,24 +123,6 @@ class GenerateDBusXML : public Visitor
   void visitPackageName(PackageName* p);
   void visitDPackageName(DPackageName* p);  
   void visitDCustomType(DCustomType* p);
-
-
- protected:
-  int _n_, _i_;
-  std::string packageName;
-  std::string nameOfEnum;
-  std::vector<CustomType> finishedTypes;
-  std::string pathToImportFile;
-
-  void newIndLine(void);
-  void increaseIndent(void);
-  void decreaseIndent(void);
-  void render(Char c);
-  void render(std::string s);
-  void indent(void);
-  void removeLastDot(void);
-  void removeLastComma(void);
-  void removeLine(void);
  
   void inline bufAppend(const char* s)
   {

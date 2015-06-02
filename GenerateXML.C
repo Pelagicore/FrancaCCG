@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <sstream>
 #include "Parser.H"
 #include "Absyn.H"
 #include "XMLGenerator.H"
@@ -43,11 +45,7 @@ int main(int argc, char ** argv)
   input = stdin;
   }
   
-  /* The default entry point is used. For other options see Parser.H */
-
-
-  
-  
+    
   // Output file for D-Bus XML Introspection
 
   char* givenFile = argv[1];
@@ -66,8 +64,19 @@ int main(int argc, char ** argv)
   ofstream output;
   output.open(outputFilename.c_str());
   
+  
+  // Temporarily redirect cout, so that we can save the line number of any parse error.
+  std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
+  std::ostringstream strCout;
+  std::cout.rdbuf(strCout.rdbuf());
 
+  // Parse the fidl file
   Program *parse_tree = pProgram(input);
+  
+  // Restore old cout and save the contents of temp cout.
+  std::cout.rdbuf(oldCoutStreamBuf);
+  std::string parserOutput = strCout.str();
+  
   if (parse_tree)
   {
   
@@ -81,7 +90,6 @@ int main(int argc, char ** argv)
     PrintAbsyn *p = new PrintAbsyn();
     printf("%s\n\n", p->print(parse_tree));
     */
-    
     
     
     // Generate XML file
@@ -100,7 +108,37 @@ int main(int argc, char ** argv)
     
     
     return 0;
-  }
+  } else {
+    // Find the line number of the potential parse error
+    size_t indexOfLineNbr = parserOutput.rfind("line ");
+    if (indexOfLineNbr != -1) {
+      // An error message containing a line number was found. Save the line number.
+      std::string lineNbrStr = parserOutput.substr(indexOfLineNbr + 5, parserOutput.length());
+      //std::cout << "lineNbrStr = \"" << lineNbrStr << "\"" << std::endl;
+      int lineNbr;
+      std::istringstream (lineNbrStr) >> lineNbr;
+
+      // Reopen the file to find the line with errors. Not the best solution but works.
+      std::ifstream theFidlFile(argv[1]);
+      std::string currentLine;
+      if (theFidlFile.is_open())
+      {
+        for (int i = 0; i < lineNbr; i++) {
+          std::getline(theFidlFile, currentLine);
+          if (i == lineNbr - 1) {
+            // Print the content of line number of parse error
+            std::cout << "Error parsing file " << argv[1] << " at line " << lineNbr << ":" << std::endl << currentLine << std::endl;
+          }
+        }
+        theFidlFile.close();
+      }
+    }
+  
+  std::cout << "Aborting code generation." << std::endl;
   return 1;
+  
+  }
+  
+  
 }
 

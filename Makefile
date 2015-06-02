@@ -50,6 +50,6 @@ CustomType.o: CustomType.C
 XMLGenerator.o: XMLGenerator.C XMLGenerator.H Absyn.H CustomTypesParser.H CustomType.H
 	${CC} ${CCFLAGS} -c XMLGenerator.C
 
-GenerateXML.o: GenerateXML.C Parser.H Printer.H Absyn.H XMLGenerator.H CustomType.H
+GenerateXML.o: GenerateXML.C Parser.H Printer.H Absyn.H XMLGenerator.H
 	${CC} ${CCFLAGS} -c GenerateXML.C
 
