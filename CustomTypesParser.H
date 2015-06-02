@@ -1,66 +1,24 @@
+#ifndef CUSTOMTYPESPARSER_HEADER
+#define CUSTOMTYPESPARSER_HEADER
+
 #include "Absyn.H"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <string>
-#include <sstream> 
-#include <iostream>
 #include "Parser.H"
-#include "Printer.H"
 
-enum FRANCA_DATATYPE {NO_TYPE, FRANCA_ENUM, FRANCA_TYPEDEF} ;
+#include "CustomType.H"
 
-class CustomType {
-
-protected:
-    String name; // Name of custom type
-    FRANCA_DATATYPE type; // Type. Mainly used to separate enums from others.
-    String data; // the franca signature of the type
-    String dbussign;
-    String emum_extends; // Only for enums. Name of enumeration to extend.
-    std::vector<String> enum_members; // Only for enums. List of enum members.
-    std::vector<String> enum_values; // Only for enums. List of enum values.
-
-public:
-
-    String getName();
-    FRANCA_DATATYPE getType();
-    String getTypeString();
-    String getEnumExtends();
-    String getData();
-    String getDBusSign();
-    String getEnumMember(int i);
-    String getEnumValue(int i);
-    int getNbrOfEnumMembers();
-    
-    void setName(String name);
-    void setType(FRANCA_DATATYPE type);
-    void setData(String data);
-    void setEnumExtends(String enum_extends);
-    void addEnum(String name, String value);
-    void setEnumValue(int i, String value);
-    void setDBusSign(String sign);
-
-    CustomType(void);
-    ~CustomType(void);    
-    CustomType(String name, FRANCA_DATATYPE type, String data);
-
-};
-
-
-
+#include <string>
+#include <vector>
 
 class CustomTypesParser : public Visitor
 {
 
 protected:
-  String importedFileName;
-  String importedNameSpace;
-  String pathToImportFile;
-  String tempString;
+  std::string importedFileName;
+  std::string importedNameSpace;
+  std::string pathToImportFile;
+  std::string tempString;
   CustomType* currentCT;
   std::vector<CustomType> unfinished;
-  std::vector<CustomType> finished;
 
   std::vector<CustomType> parseUnfinishedList(std::vector<CustomType> unfinished);
   
@@ -144,16 +102,13 @@ protected:
   void visitString(String x);
   void visitIdent(Ident x);
 
-
 public:
-
   
   std::vector<CustomType> findCustomTypes(Visitable *v, String s);
   std::vector<CustomType> findUnfinishedTypes(Visitable *v, String s);
 
   CustomTypesParser(void);
   ~CustomTypesParser(void);
-  
-
 };
 
+#endif

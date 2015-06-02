@@ -2,9 +2,10 @@
  * Based on BNFC-generated pretty printer
  ***/
 
-#include <string>
 #include "XMLGenerator.H"
+
 #include <iostream>
+
 
 
 
@@ -37,7 +38,7 @@ void GenerateDBusXML::render(Char c)
   bufAppend(c);
 }
 
-void GenerateDBusXML::render(String s_)
+void GenerateDBusXML::render(std::string s_)
 {
   const char *s = s_.c_str() ;
   if(strlen(s) > 0)
@@ -120,7 +121,7 @@ GenerateDBusXML::~GenerateDBusXML(void)
 
 
 
-char* GenerateDBusXML::generate(Visitable *v, String s)
+char* GenerateDBusXML::generate(Visitable *v, std::string s)
 {
   _n_ = 0;
   packageName = "";
@@ -134,14 +135,14 @@ char* GenerateDBusXML::generate(Visitable *v, String s)
 }
 
 
-void GenerateDBusXML::createCustomTypesList(Visitable *v, String s) {
+void GenerateDBusXML::createCustomTypesList(Visitable *v, std::string s) {
     CustomTypesParser *parser = new CustomTypesParser();
     finishedTypes = parser->findCustomTypes(v, s);
     // finishedTypes now contain a list of all custom types in fidl file, together with their d-bus signature
 }
 
 
-String GenerateDBusXML::getCustomTypeSig(String name) {
+std::string GenerateDBusXML::getCustomTypeSig(std::string name) {
     for (std::vector<CustomType>::iterator it = finishedTypes.begin(); it != finishedTypes.end(); ++it) {
         if (it->getName().compare(name) == 0) {
             return it->getDBusSign();
@@ -151,7 +152,7 @@ String GenerateDBusXML::getCustomTypeSig(String name) {
     return "";
 }
 
-void GenerateDBusXML::setNameOfEnum(String name) {
+void GenerateDBusXML::setNameOfEnum(std::string name) {
     for (std::vector<CustomType>::iterator it = finishedTypes.begin(); it != finishedTypes.end(); ++it) {
         if (it->getName().compare(name) == 0) {
             if (it->getType() == FRANCA_ENUM) {
@@ -307,15 +308,15 @@ void GenerateDBusXML::visitDImport(DImport *dimport)
   if (imported_parse_tree)
   {
     GenerateDBusXML *imported_g = new GenerateDBusXML();   
-    String xmlFromImport;
+    std::string xmlFromImport;
     xmlFromImport = imported_g->generate(imported_parse_tree, pathToImportFile);
 
     // Some unneccecary XML code has been generated. Eliminate it.
-    String tmp_packageName = importedNameSpace.substr(0, importedNameSpace.find_last_of("."));
-    String startString = "<node name=\"" + tmp_packageName + "\">";
+    std::string tmp_packageName = importedNameSpace.substr(0, importedNameSpace.find_last_of("."));
+    std::string startString = "<node name=\"" + tmp_packageName + "\">";
     size_t startPos = xmlFromImport.find(startString, 0) + startString.length() + 4; //TODO this nasty 4 should be removed
     size_t endPos = xmlFromImport.find("</node>", startPos);
-    String strippedXMLImport = xmlFromImport.substr(startPos, endPos-startPos);
+    std::string strippedXMLImport = xmlFromImport.substr(startPos, endPos-startPos);
     
     //Finally render the stripped string.
     render(strippedXMLImport);
@@ -1163,7 +1164,7 @@ void GenerateDBusXML::visitDCustomType(DCustomType *dcustomtype)
   // Don't render custom type name, render it's dbus signature instead
   
   // Save the file name but don't print it (visitId will append it to buffer)
-  String nameOfCustomType;
+  std::string nameOfCustomType;
   int old_cur = cur_;
   visitId(dcustomtype->id_);  
   for (int i = old_cur; i< cur_; i++) {

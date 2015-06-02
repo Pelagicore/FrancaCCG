@@ -1,7 +1,3 @@
-
-
-
-
 /**** This code is based on the BNFC-Generated Visitor Design Pattern Skeleton. ***/
 
 // The purpose of this code is to create a list of all custom types declared in the Franca AST, as well as in any files
@@ -14,128 +10,11 @@
 // - Enums (including extending other enums as well as assigning values to enum members)
 //
 
-
 #include "CustomTypesParser.H"
+#include <sstream> 
+#include <iostream>
+#include <stdio.h>
 
-
-String CustomType::getName() {
-    return this->name;
-}
-
-
-FRANCA_DATATYPE CustomType::getType() {
-    return this->type;
-}
-
-String CustomType::getTypeString() {
-    if (this->type == FRANCA_ENUM) {
-        return "ENUMERATION";
-    } else if (this->type == FRANCA_TYPEDEF) {
-        return "TYPEDEF";
-    }
-    else
-    return "";
-}
-
-
-String CustomType::getEnumExtends() {
-    return this->emum_extends;
-}
-
-
-String CustomType::getData() {
-    return this->data;
-}
-
-String CustomType::getDBusSign() {
-    return this->dbussign;
-}
-
-
-String CustomType::getEnumMember(int i) {
-    if (i <= enum_members.size()) {
-        return this->enum_members.at(i);
-    } else {
-        // TODO
-        exit(1);      
-    }
-}
-
-
-String CustomType::getEnumValue(int i) {
-    if (i <= enum_values.size()) {
-        return this->enum_values.at(i);
-    } else {
-// TODO
-        exit(1);
-    }
-}
-
-int CustomType::getNbrOfEnumMembers() {
-    return this->enum_members.size();
-}
-
-    
-void CustomType::setName(String name) {
-    this->name = name;
-}
-
-
-void CustomType::setType(FRANCA_DATATYPE type) {
-    this->type = type;
-}
-
-
-void CustomType::setData(String data) {
-    this->data = data;
-}
-
-
-void CustomType::setEnumExtends(String enum_extends) {
-    this->emum_extends = enum_extends;
-}
-
-
-void CustomType::addEnum(String name, String value) {
-    // TODO make threadsafe
-    this->enum_members.push_back(name);
-    this->enum_values.push_back(value);
-}
-
-void CustomType::setEnumValue(int i, String value) {
-    if (i <= this->enum_members.size()) {
-        this->enum_values.at(i) = value;   
-    }
-}
-
-void CustomType::setDBusSign(String sign) {
-    this->dbussign = sign;
-}
-
-CustomType::CustomType(String name, FRANCA_DATATYPE type, String data) {
-    this->name = name;
-    this->type = type;
-    this->data = data;
-
-}
-
-CustomType::CustomType(void)
-{
-    this->name = "";
-    this->type = NO_TYPE;
-    this->data = "";
-    this->emum_extends = "";
-
-}
-
-CustomType::~CustomType(void)
-{
-}
-
-
-
-
-// CustomTypesParser
 
 CustomTypesParser::CustomTypesParser(void)
 {
@@ -148,7 +27,7 @@ CustomTypesParser::~CustomTypesParser(void)
 
 
 
-std::vector<CustomType> CustomTypesParser::findCustomTypes(Visitable *v, String s) {
+std::vector<CustomType> CustomTypesParser::findCustomTypes(Visitable *v, std::string s) {
     pathToImportFile = s;
     v->accept(this);    
     
@@ -156,7 +35,7 @@ std::vector<CustomType> CustomTypesParser::findCustomTypes(Visitable *v, String 
 }
 
 
-std::vector<CustomType> CustomTypesParser::findUnfinishedTypes(Visitable *v, String s) {
+std::vector<CustomType> CustomTypesParser::findUnfinishedTypes(Visitable *v, std::string s) {
     // This has the same functionality as findCustomTypes, but does not try to parse the found types.
     // Used to import type collections in other Franca files.
     pathToImportFile = s;
@@ -167,7 +46,7 @@ std::vector<CustomType> CustomTypesParser::findUnfinishedTypes(Visitable *v, Str
 }
 
 std::vector<CustomType> CustomTypesParser::parseUnfinishedList(std::vector<CustomType> unfinished) {
-
+    std::vector<CustomType> finished;
     
     int oldsize = 0;
     
@@ -244,7 +123,6 @@ std::vector<CustomType> CustomTypesParser::parseUnfinishedList(std::vector<Custo
                             }
                         }
                     }
-                    
                 }
             
                 // Add element to finished, and remove it from unfinished, thus incrementing iterator.
@@ -304,7 +182,7 @@ std::vector<CustomType> CustomTypesParser::parseUnfinishedList(std::vector<Custo
     for (std::vector<CustomType>::iterator it = finished.begin(); it != finished.end(); ++it) {
         if (it->getType() == FRANCA_ENUM) {
             int currentFreeValue = 0;
-            String currentFreeValueString = "0";
+            std::string currentFreeValueString = "0";
                       
             for (int i = 0; i != it->getNbrOfEnumMembers(); i++) {
                 while (it->getEnumValue(i) == "") {
@@ -637,7 +515,6 @@ void CustomTypesParser::visitDExtendedEnumDef(DExtendedEnumDef *dextendedenumdef
   dextendedenumdef->enumlist_->accept(this);
   
   unfinished.push_back(*ct);
-  
 }
 
 void CustomTypesParser::visitDTypeDef(DTypeDef *dtypedef)
@@ -672,7 +549,6 @@ void CustomTypesParser::visitDTypeDefCustom(DTypeDefCustom *dtypedefcustom)
   ct->setData(tempString);
   
   unfinished.push_back(*ct);
-
 }
 
 void CustomTypesParser::visitDInVar(DInVar *dinvar)
@@ -730,14 +606,12 @@ void CustomTypesParser::visitDEnumValue(DEnumValue *denumvalue)
 {
   tempString = "";
   visitId(denumvalue->id_);
-  String tempEnumMemberName = tempString;
+  std::string tempEnumMemberName = tempString;
 
   tempString = "";
   visitInteger(denumvalue->integer_);
   
   currentCT->addEnum(tempEnumMemberName, tempString);
-
-  
 }
 
 void CustomTypesParser::visitDTypeDefIdent(DTypeDefIdent *dtypedefident)

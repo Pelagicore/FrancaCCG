@@ -6,9 +6,9 @@
 #include <iostream>
 #include <fstream>
 #include "Parser.H"
-#include "Printer.H"
 #include "Absyn.H"
 #include "XMLGenerator.H"
+#include "CustomTypesParser.H"
 
 using namespace std;
 
@@ -20,7 +20,7 @@ int main(int argc, char ** argv)
   }
 
   FILE *input;
-  String pathToImportFile = "";
+  std::string pathToImportFile = "";
   if (argc > 1) 
   {
     input = fopen(argv[1], "r");
@@ -31,9 +31,9 @@ int main(int argc, char ** argv)
     }
     
     // To solve imports in the fidl file, we need to save the folder path.
-    String tmp_pathToImportFile = argv[1];
+    std::string tmp_pathToImportFile = argv[1];
     size_t posOfLastSlash = tmp_pathToImportFile.find_last_of("/");
-    if (posOfLastSlash != string::npos) {
+    if (posOfLastSlash != std::string::npos) {
       pathToImportFile = tmp_pathToImportFile.substr(0, posOfLastSlash);
     }
     //cout << "Path to file name: " << pathToImportFile << endl;
@@ -56,7 +56,7 @@ int main(int argc, char ** argv)
   // If source file has the format XYZ.fidl, name the output file XYZ.xml
   // Otherwise, if it is called XYZ*, name it XYZ*.xml
   
-  string outputFilename = givenFile;
+  std::string outputFilename = givenFile;
   int found = outputFilename.rfind(".fidl");
   if (found != -1) {
     outputFilename.replace(found, 5, "");
@@ -72,6 +72,7 @@ int main(int argc, char ** argv)
   {
   
     /* NOT USED FOR THIS PROJECT
+    // #include "Printer.H" to use
     printf("\nParse Succesful!\n");
     printf("\n[Abstract Syntax]\n");
     ShowAbsyn *s = new ShowAbsyn();
@@ -92,7 +93,7 @@ int main(int argc, char ** argv)
     
     // Print generated file
     ifstream generatedFile(outputFilename.c_str());
-    string templine;
+    std::string templine;
     while (getline(generatedFile, templine)) {
         cout << templine << endl;
     }

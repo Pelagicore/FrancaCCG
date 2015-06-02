@@ -2,52 +2,31 @@
 #define XMLGENERATOR_HEADER
 
 #include "Absyn.H"
+#include "CustomTypesParser.H"
+#include "CustomType.H"
+
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <string>
-#include "CustomTypesParser.H"
-#include "Parser.H"
-#include "Printer.H"
+#include <vector>
 
 /* Certain applications may improve performance by changing the buffer size */
 #define BUFFER_INITIAL 2000
-/* You may wish to change _L_PAREN or _R_PAREN */
-#define _L_PAREN '('
-#define _R_PAREN ')'
 
 class GenerateDBusXML : public Visitor
 {
- protected:
-  int _n_, _i_;
-  String packageName;
-  String nameOfEnum;
-  std::vector<CustomType> finishedTypes;
- 
-  
-  /* The following are simple heuristics for rendering terminals */
-  /* You may wish to change them */
-
-  void newIndLine(void);
-  void increaseIndent(void);
-  void decreaseIndent(void);
-  void render(Char c);
-  void render(String s);
-  void indent(void);
-  //void backup(void);
-  void removeLastDot(void);
-  void removeLastComma(void);
-  void removeLine(void);
  public:
   GenerateDBusXML(void);
   ~GenerateDBusXML(void);
-  char* generate(Visitable* v, String s);
-  void createCustomTypesList(Visitable *v, String s);
-  String getCustomTypeSig(String name);
-  void setNameOfEnum(String name);
+  char* generate(Visitable* v, std::string s);
+  void createCustomTypesList(Visitable *v, std::string s);
+  std::string getCustomTypeSig(std::string name);
+  void setNameOfEnum(std::string name);
   void renderEnumMembersIfNeeded();
+  void saveNamespaceId(std::string s);
 
-  void visitPackageName(String s_);
+  
+  void visitPackageName(std::string s_);
   void visitProgram(Program *p); /* abstract class */
   void visitProg(Prog *p);
   void visitDef(Def *p); /* abstract class */
@@ -61,31 +40,22 @@ class GenerateDBusXML : public Visitor
   void visitDIBody(DIBody *p);
   void visitListIBodyItem(ListIBodyItem* p);
   void visitIBodyItem(IBodyItem *p); /* abstract class */
-
   void visitDEnumDef(DEnumDef* p);
   void visitDEnum(DEnum* p);
   void visitDEnumValue(DEnumValue* p);
   void visitDEnumList(DEnumList* p);
   void visitDExtendedEnumDef(DExtendedEnumDef* p);
   void visitDEnumIdent(DEnumIdent* p);
-  
-  
   void visitDVersion(DVersion *p);
-
   void visitDMethod(DMethod *p);
   void visitDInMethod(DInMethod *p);
   void visitDOutMethod(DOutMethod *p);
-  void visitDInOutMethod(DInOutMethod *p);
-  
-  
+  void visitDInOutMethod(DInOutMethod *p);  
   void visitDAttrib(DAttrib* p);
   void visitDAttribReadOnly(DAttribReadOnly* p);
   void visitDAttribNoSub(DAttribNoSub* p);
   void visitDAttribReadOnlyNoSub(DAttribReadOnlyNoSub* p);
   void visitDAttribReadOnlyNoSub2(DAttribReadOnlyNoSub2* p);
-  
-  
-  
   void visitVari(Vari *p); /* abstract class */
   void visitDVar(DVar *p);
   void visitInVari(InVari *p); /* abstract class */
@@ -117,14 +87,10 @@ class GenerateDBusXML : public Visitor
   void visitString(String s);
   void visitIdent(String s);
   void visitId(String s);
-  
   void visitDTypeDefIdent(DTypeDefIdent* p);
   void visitTypeDefId(TypeDefId* p);
   void visitDTypeDefCustom(DTypeDefCustom* p);
-
   void visitDTypeCollection(DTypeCollection* p);
-
-
   void visitFileName(FileName* p);
   void visitFileEnding(FileEnding* p);
   void visitDImport(DImport* p);
@@ -136,14 +102,28 @@ class GenerateDBusXML : public Visitor
   void visitNamespace(Namespace* p);
   void visitNamespaceID(NamespaceID* p);
   void visitListNamespaceID(ListNamespaceID* p);
-  void saveNamespaceId(String s);
   void visitPackageName(PackageName* p);
-  void visitDPackageName(DPackageName* p);
-  
-  
+  void visitDPackageName(DPackageName* p);  
   void visitDCustomType(DCustomType* p);
 
+
  protected:
+  int _n_, _i_;
+  std::string packageName;
+  std::string nameOfEnum;
+  std::vector<CustomType> finishedTypes;
+  std::string pathToImportFile;
+
+  void newIndLine(void);
+  void increaseIndent(void);
+  void decreaseIndent(void);
+  void render(Char c);
+  void render(std::string s);
+  void indent(void);
+  void removeLastDot(void);
+  void removeLastComma(void);
+  void removeLine(void);
+ 
   void inline bufAppend(const char* s)
   {
     int len = strlen(s);
@@ -194,13 +174,8 @@ class GenerateDBusXML : public Visitor
   }
   char *buf_;
   int cur_, buf_size;
-  //bool enum_empty;
-  //String importedFileName;
-  //String importedNameSpace;
-  String pathToImportFile;
+
 };
-
-
 
 #endif
 
