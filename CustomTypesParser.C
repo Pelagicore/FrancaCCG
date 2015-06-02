@@ -46,6 +46,24 @@ std::vector<CustomType> CustomTypesParser::findUnfinishedTypes(Visitable *v, std
 }
 
 std::vector<CustomType> CustomTypesParser::parseUnfinishedList(std::vector<CustomType> unfinished) {
+    // This rather complicated function is called to parse all CustomType instances in its parameter.
+    // It will iterate through them, and when a type is found that does not depend on / contain any
+    // unknown custom types, it will generate the d-bus signature for that type. If the type is an enum,
+    // any enum members in it's parent enum type will be added to it. It will then be moved from
+    // the vector of unfinished custom types to the vector of finished custom types. 
+    
+    // This will be done until either all unfinished custom types have been processed and marked as
+    // finished, or until it's not possible to process the remaining custom types (this would most likely
+    // be due to syntax errors in the Franca file). If there are any such remaining types, they will
+    // be printed to console and code generation will be aborted.
+    
+    // Afterwards, all enum types will be postprocessed, adding value definition to each enum member
+    // not currently having one.
+    
+    // Finally, the vector of finished types will be returned and type parsing is completed.
+    // This vector can then be consulted to find the d-bus signature and/or enum members of any
+    // custom type found during AST traversal and code generation.
+    
     std::vector<CustomType> finished;
     
     int oldsize = 0;
@@ -160,7 +178,7 @@ std::vector<CustomType> CustomTypesParser::parseUnfinishedList(std::vector<Custo
        
    
     // Print finished for DEBUG purposes
-    std::cout << "DEBUG: FINISHED TYPES:" << std::endl;
+/*    std::cout << "DEBUG: FINISHED TYPES:" << std::endl;
     for (std::vector<CustomType>::iterator it = finished.begin(); it != finished.end(); ++it) {
         std::cout << "NAME: " << it->getName() << std::endl << "TYPE: " << it->getTypeString() << std::endl << "D-BUS SIGNATURE: " << it->getDBusSign() << std::endl;
         if (it->getType() == FRANCA_ENUM) {
@@ -173,7 +191,7 @@ std::vector<CustomType> CustomTypesParser::parseUnfinishedList(std::vector<Custo
         }
         std::cout << std::endl;
     } 
-
+*/
 
     // Postprocess enums, setting a value to each member not already having one.
     // TODO this should really take into account not only the values of the enum members in the currently processed enum,
@@ -332,7 +350,7 @@ void CustomTypesParser::visitDImport(DImport *dimport)
   std::cout.rdbuf(oldCoutStreamBuf);
   std::string parserOutput = strCout.str();
   
-  if (imported_parse_tree)
+  if (imported_parse_tree && importedFile)
   {
     CustomTypesParser *parser = new CustomTypesParser();
     std::vector<CustomType> newUnfinishedTypes = parser->findUnfinishedTypes(imported_parse_tree, pathToImportFile);

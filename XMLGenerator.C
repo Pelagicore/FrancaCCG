@@ -148,7 +148,9 @@ std::string GenerateDBusXML::getCustomTypeSig(std::string name) {
             return it->getDBusSign();
         }
     }
-    // If not found, error in fidl file. TODO handle it
+    // If name of custom type is not found, it has not been defined. Exit code generation.
+    std::cout << "ERROR: Custom Franca type '" << name << "' has not been defined." << std::endl << "Aborting code generation." << std::endl;
+    exit(1);
     return "";
 }
 
