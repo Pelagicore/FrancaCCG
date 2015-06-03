@@ -12,133 +12,123 @@
 #include "XMLGenerator.H"
 #include "CustomTypesParser.H"
 
-using namespace std;
 
 int main(int argc, char ** argv)
 {
-  if (argv[1] == NULL) {
-    fprintf(stderr, "Error: No .fidl file given.\n");
-    exit(1);
-  }
-
-  FILE *input;
-  std::string pathToImportFile = "";
-  if (argc > 1) 
-  {
-    input = fopen(argv[1], "r");
-    if (!input)
-    {
-      fprintf(stderr, "Error opening input file.\n");
-      exit(1);
+    if (argv[1] == NULL) {
+        fprintf(stderr, "Error: No .fidl file given.\n");
+        exit(1);
     }
-    
-    // To solve imports in the fidl file, we need to save the folder path.
-    std::string tmp_pathToImportFile = argv[1];
-    size_t posOfLastSlash = tmp_pathToImportFile.find_last_of("/");
-    if (posOfLastSlash != std::string::npos) {
-      pathToImportFile = tmp_pathToImportFile.substr(0, posOfLastSlash);
-    }
-    //cout << "Path to file name: " << pathToImportFile << endl;
-    //cout << "Position of last /: " <<  posOfLastSlash << endl;
-  } 
-  else {
-  input = stdin;
-  }
-  
-    
-  // Output file for D-Bus XML Introspection
 
-  char* givenFile = argv[1];
-  //  printf("%s \n", givenFile); 
-
-  // If source file has the format XYZ.fidl, name the output file XYZ.xml
-  // Otherwise, if it is called XYZ*, name it XYZ*.xml
-  
-  std::string outputFilename = givenFile;
-  int found = outputFilename.rfind(".fidl");
-  if (found != -1) {
-    outputFilename.replace(found, 5, "");
-  }
-  outputFilename.append(".xml");
-  
-  ofstream output;
-  output.open(outputFilename.c_str());
-  
-  
-  // Temporarily redirect cout, so that we can save the line number of any parse error.
-  std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
-  std::ostringstream strCout;
-  std::cout.rdbuf(strCout.rdbuf());
-
-  // Parse the fidl file
-  Program *parse_tree = pProgram(input);
-  
-  // Restore old cout and save the contents of temp cout.
-  std::cout.rdbuf(oldCoutStreamBuf);
-  std::string parserOutput = strCout.str();
-  
-  if (parse_tree)
-  {
-  
-    /* NOT USED FOR THIS PROJECT
-    // #include "Printer.H" to use
-    printf("\nParse Succesful!\n");
-    printf("\n[Abstract Syntax]\n");
-    ShowAbsyn *s = new ShowAbsyn();
-    printf("%s\n\n", s->show(parse_tree));
-    printf("[Linearized Tree]\n");
-    PrintAbsyn *p = new PrintAbsyn();
-    printf("%s\n\n", p->print(parse_tree));
-    */
-    
-    
-    // Generate XML file
-    GenerateDBusXML *g2 = new GenerateDBusXML();
-    g2->createCustomTypesList(parse_tree, pathToImportFile);
-    output << g2->generate(parse_tree, pathToImportFile);
-    output.close();
-    cout << "Finished generating D-Bus XML Introspection to file " << outputFilename << ". File content: " << endl << endl;
-    
-    // Print generated file
-    ifstream generatedFile(outputFilename.c_str());
-    std::string templine;
-    while (getline(generatedFile, templine)) {
-        cout << templine << endl;
-    }
-    
-    
-    return 0;
-  } else {
-    // Find the line number of the potential parse error
-    size_t indexOfLineNbr = parserOutput.rfind("line ");
-    if (indexOfLineNbr != -1) {
-      // An error message containing a line number was found. Save the line number.
-      std::string lineNbrStr = parserOutput.substr(indexOfLineNbr + 5, parserOutput.length());
-      //std::cout << "lineNbrStr = \"" << lineNbrStr << "\"" << std::endl;
-      int lineNbr;
-      std::istringstream (lineNbrStr) >> lineNbr;
-
-      // Reopen the file to find the line with errors. Not the best solution but works.
-      std::ifstream theFidlFile(argv[1]);
-      std::string currentLine;
-      if (theFidlFile.is_open())
-      {
-        for (int i = 0; i < lineNbr; i++) {
-          std::getline(theFidlFile, currentLine);
-          if (i == lineNbr - 1) {
-            // Print the content of line number of parse error
-            std::cout << "Error parsing file " << argv[1] << " at line " << lineNbr << ":" << std::endl << currentLine << std::endl;
-          }
+    FILE *input;
+    std::string pathToImportFile = "";
+    if (argc > 1) {
+        input = fopen(argv[1], "r");
+        if (!input) {
+            fprintf(stderr, "Error opening input file.\n");
+            exit(1);
         }
-        theFidlFile.close();
-      }
+    
+        // To solve imports in the fidl file, we need to save the folder path.
+        std::string tmp_pathToImportFile = argv[1];
+        size_t posOfLastSlash = tmp_pathToImportFile.find_last_of("/");
+        if (posOfLastSlash != std::string::npos) {
+            pathToImportFile = tmp_pathToImportFile.substr(0, posOfLastSlash);
+        }
+    } 
+    else {
+        input = stdin;
     }
   
-  std::cout << "Aborting code generation." << std::endl;
-  return 1;
+    
+    // Output file for D-Bus XML Introspection
+    char* givenFile = argv[1];
+
+    // If source file has the format XYZ.fidl, name the output file XYZ.xml
+    // Otherwise, if it is called XYZ*, name it XYZ*.xml
   
-  }
+    std::string outputFilename = givenFile;
+    int found = outputFilename.rfind(".fidl");
+    if (found != -1) {
+        outputFilename.replace(found, 5, "");
+    }
+    outputFilename.append(".xml");
+  
+    std::ofstream output;
+    output.open(outputFilename.c_str());
   
   
+    // Temporarily redirect cout, so that we can save the line number of any parse error.
+    // This is done rather than change Parser.C since Parser is auto-generated and will be
+    // regenerated each time bnfc is run.
+    std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
+    std::ostringstream strCout;
+    std::cout.rdbuf(strCout.rdbuf());
+
+    // Parse the fidl file
+    Program *parse_tree = pProgram(input);
+  
+    // Restore old cout and save the contents of temp cout.
+    std::cout.rdbuf(oldCoutStreamBuf);
+    std::string parserOutput = strCout.str();
+  
+    if (parse_tree) {
+  
+        /* NOT USED FOR THIS PROJECT
+        // #include "Printer.H" to use
+        printf("\nParse Succesful!\n");
+        printf("\n[Abstract Syntax]\n");
+        ShowAbsyn *s = new ShowAbsyn();
+        printf("%s\n\n", s->show(parse_tree));
+        printf("[Linearized Tree]\n");
+        PrintAbsyn *p = new PrintAbsyn();
+        printf("%s\n\n", p->print(parse_tree));
+        */
+    
+    
+        // Generate XML file
+        GenerateDBusXML *g2 = new GenerateDBusXML();
+        g2->createCustomTypesList(parse_tree, pathToImportFile);
+        output << g2->generate(parse_tree, pathToImportFile);
+        output.close();
+        std::cout << "Finished generating D-Bus XML Introspection to file " << outputFilename << ". File content: " << std::endl << std::endl;
+    
+        // Print generated file
+        std::ifstream generatedFile(outputFilename.c_str());
+        std::string templine;
+        while (getline(generatedFile, templine)) {
+            std::cout << templine << std::endl;
+        }
+    } else {
+  
+        // If there are parse errors, find the line number of the parse error and print that line
+    
+        size_t indexOfLineNbr = parserOutput.rfind("line ");
+        if (indexOfLineNbr != -1) {
+            // An error message containing a line number was found. Save the line number.
+            std::string lineNbrStr = parserOutput.substr(indexOfLineNbr + 5, parserOutput.length());
+            //std::cout << "lineNbrStr = \"" << lineNbrStr << "\"" << std::endl;
+            int lineNbr;
+            std::istringstream (lineNbrStr) >> lineNbr;
+
+            // Reopen the file to find the line with errors. Not the best solution but works.
+            std::ifstream theFidlFile(argv[1]);
+            std::string currentLine;
+            if (theFidlFile.is_open()) {
+                for (int i = 0; i < lineNbr; i++) {
+                    std::getline(theFidlFile, currentLine);
+                    if (i == lineNbr - 1) {
+                        // Print the content of line number of parse error
+                        std::cout << "Error parsing file " << argv[1] << " at line " << lineNbr << ":" << std::endl << currentLine << std::endl;
+                    }
+                }
+                theFidlFile.close();
+            }
+        }
+        std::cout << "Aborting code generation." << std::endl;
+        return 1;
+    }
+  
+    return 0;
 }
 

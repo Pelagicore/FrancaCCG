@@ -2,8 +2,9 @@
 #define CUSTOMTYPE_HEADER
 
 #include <vector>
-#include <stdlib.h>
 #include <string>
+
+
 
 enum FRANCA_DATATYPE {NO_TYPE, FRANCA_ENUM, FRANCA_TYPEDEF} ;
 

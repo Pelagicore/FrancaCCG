@@ -14,18 +14,14 @@
 #include <sstream> 
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
 
-
-CustomTypesParser::CustomTypesParser(void)
-{
+CustomTypesParser::CustomTypesParser(void) {
 }
 
 
-CustomTypesParser::~CustomTypesParser(void)
-{
+CustomTypesParser::~CustomTypesParser(void) {
 }
-
-
 
 std::vector<CustomType> CustomTypesParser::findCustomTypes(Visitable *v, std::string s) {
     pathToImportFile = s;
@@ -34,7 +30,6 @@ std::vector<CustomType> CustomTypesParser::findCustomTypes(Visitable *v, std::st
     return parseUnfinishedList(unfinished);
 }
 
-
 std::vector<CustomType> CustomTypesParser::findUnfinishedTypes(Visitable *v, std::string s) {
     // This has the same functionality as findCustomTypes, but does not try to parse the found types.
     // Used to import type collections in other Franca files.
@@ -42,7 +37,6 @@ std::vector<CustomType> CustomTypesParser::findUnfinishedTypes(Visitable *v, std
     v->accept(this); 
      
     return unfinished;
-
 }
 
 std::vector<CustomType> CustomTypesParser::parseUnfinishedList(std::vector<CustomType> unfinished) {
@@ -104,9 +98,7 @@ std::vector<CustomType> CustomTypesParser::parseUnfinishedList(std::vector<Custo
                 }
             }
             // other types go here TODO
-            
-            
-            
+
             if (isFinished) {
             
                 if (it->getType() == FRANCA_ENUM) {
@@ -146,10 +138,7 @@ std::vector<CustomType> CustomTypesParser::parseUnfinishedList(std::vector<Custo
                 // Add element to finished, and remove it from unfinished, thus incrementing iterator.
                 finished.push_back(*it);
                 it = unfinished.erase(it);
-             
-          
-    
-        
+                        
             } else {
                 // Increment iterator since no element was removed from unfinished
                 ++it;
@@ -174,7 +163,7 @@ std::vector<CustomType> CustomTypesParser::parseUnfinishedList(std::vector<Custo
         } 
         std::cout << "Aborting code generation." << std::endl;
         exit(1);
-     }
+    }
        
    
     // Print finished for DEBUG purposes
@@ -248,599 +237,453 @@ void CustomTypesParser::visitEnum(Enum* t) {} //abstract class
 void CustomTypesParser::visitTypeDefId(TypeDefId* t) {} //abstract class
 void CustomTypesParser::visitType(Type* t) {} //abstract class
 
-void CustomTypesParser::visitProg(Prog *prog)
-{
-  /* Code For Prog Goes Here */
-
-  prog->listdef_->accept(this);
-
+void CustomTypesParser::visitProg(Prog *prog) {
+    prog->listdef_->accept(this);
 }
 
-void CustomTypesParser::visitDPackage(DPackage *dpackage)
-{
-  /* Code For DPackage Goes Here */
-
-  dpackage->packagename_->accept(this);
-
+void CustomTypesParser::visitDPackage(DPackage *dpackage) {
+    dpackage->packagename_->accept(this);
 }
 
-void CustomTypesParser::visitDInterface(DInterface *dinterface)
-{
-  /* Code For DInterface Goes Here */
-
-  visitId(dinterface->id_);
-  dinterface->ibody_->accept(this);
-
+void CustomTypesParser::visitDInterface(DInterface *dinterface) {
+    visitId(dinterface->id_);
+    dinterface->ibody_->accept(this);
 }
 
-void CustomTypesParser::visitDTypeCollection(DTypeCollection *dtypecollection)
-{
-  /* Code For DTypeCollection Goes Here */
-
-  visitId(dtypecollection->id_);
-  dtypecollection->ibody_->accept(this);
-
+void CustomTypesParser::visitDTypeCollection(DTypeCollection *dtypecollection) {
+    visitId(dtypecollection->id_);
+    dtypecollection->ibody_->accept(this);
 }
 
-void CustomTypesParser::visitDImport(DImport *dimport)
-{
- 
+void CustomTypesParser::visitDImport(DImport *dimport) {
   
-  // Note that my solution for saving namespace and file name is rather ugly.
-  // Might need to implement a nicer solution (TODO) or at least make some error checking.
+    // Note that my solution for saving namespace and file name is rather ugly.
+    // Might need to implement a nicer solution (TODO) or at least make some error checking.
 
-  importedNameSpace = "";
-  importedFileName = "";
+    importedNameSpace = "";
+    importedFileName = "";
   
   
-  // Save namespace. 
-  tempString = "";
-  dimport->namespace_->accept(this);
-  importedNameSpace = tempString;
+    // Save namespace. 
+    tempString = "";
+    dimport->namespace_->accept(this);
+    importedNameSpace = tempString;
   
-  // Save file name.
-  tempString = "";
-  dimport->filename_->accept(this);
-  importedFileName = tempString;
+    // Save file name.
+    tempString = "";
+    dimport->filename_->accept(this);
+    importedFileName = tempString;
   
-  // std::cout << "DEBUG: importedNameSpace: " << importedNameSpace << std::endl; 
-  // std::cout << "DEBUG: importedFileName: " << importedFileName << std::endl; 
+    // std::cout << "DEBUG: importedNameSpace: " << importedNameSpace << std::endl; 
+    // std::cout << "DEBUG: importedFileName: " << importedFileName << std::endl; 
   
-  // Remove last character of namespace if it's a dot ('.')
-  if (importedNameSpace.at(importedNameSpace.length() -1) == '.' ) {
-    importedNameSpace = importedNameSpace.substr(0, importedNameSpace.length()-1);
-  }
-  
-  // std::cout << "DEBUG: importedNameSpace: " << importedNameSpace << std::endl; 
-  // Now namespace and file name are saved, and we can open the file.
-  std::string fullFilePath;
-  FILE *importedFile;
-  
-  if (pathToImportFile == "") {
-    importedFile = fopen(importedFileName.c_str(), "r");
-    fullFilePath = importedFileName;
-  } else {
-    importedFile = fopen((pathToImportFile + "/" + importedFileName).c_str(), "r");
-    fullFilePath = pathToImportFile + "/" + importedFileName;
-  }
-  
-  if (!importedFile)
-  {
-    std::cout << "Error importing fidl file from import statement: " << importedFileName << std::endl;
-    exit(1);
-  }
-  
-  // do stuff with file...
-  // ... but what?
-  // Import and render entire type collection for now.
-  // Should only import the specified namespace! TODO
-  
-  
-  
-  // The code redirecting cout and printing line where parse error occurs is copied from GenerateXML. Should probably be refactored! TODO
-  
-  // Temporarily redirect cout, so that we can save the line number of any parse error.
-  std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
-  std::ostringstream strCout;
-  std::cout.rdbuf(strCout.rdbuf());
-  
-  Program *imported_parse_tree = pProgram(importedFile);
-  
-  // Restore old cout and save the contents of temp cout.
-  std::cout.rdbuf(oldCoutStreamBuf);
-  std::string parserOutput = strCout.str();
-  
-  if (imported_parse_tree && importedFile)
-  {
-    CustomTypesParser *parser = new CustomTypesParser();
-    std::vector<CustomType> newUnfinishedTypes = parser->findUnfinishedTypes(imported_parse_tree, pathToImportFile);
-    
-    unfinished.insert(unfinished.end(), newUnfinishedTypes.begin(), newUnfinishedTypes.end());
-    
-
-  } else {
-    // Find the line number of the potential parse error
-    size_t indexOfLineNbr = parserOutput.rfind("line ");
-    if (indexOfLineNbr != -1) {
-      // An error message containing a line number was found. Save the line number.
-      std::string lineNbrStr = parserOutput.substr(indexOfLineNbr + 5, parserOutput.length());
-      //std::cout << "lineNbrStr = \"" << lineNbrStr << "\"" << std::endl;
-      int lineNbr;
-      std::istringstream (lineNbrStr) >> lineNbr;
-
-      // Reopen the file to find the line with errors. Not the best solution but works.
-      std::ifstream theFidlFile(fullFilePath.c_str());
-      std::string currentLine;
-      if (theFidlFile.is_open())
-      {
-        for (int i = 0; i < lineNbr; i++) {
-          std::getline(theFidlFile, currentLine);
-          if (i == lineNbr - 1) {
-            // Print the content of line number of parse error
-            std::cout << "Error parsing file " << fullFilePath << " at line " << lineNbr << ":" << std::endl << currentLine << std::endl;
-          }
-        }
-        theFidlFile.close();
-      }
-  
-  
-  
-    std::cout << "Error parsing imported fidl file: " << importedFileName << std::endl;
+    // Remove last character of namespace if it's a dot ('.')
+    if (importedNameSpace.at(importedNameSpace.length() -1) == '.' ) {
+        importedNameSpace = importedNameSpace.substr(0, importedNameSpace.length()-1);
     }
-  }
-  fclose(importedFile);
   
-}
-
-void CustomTypesParser::visitDPackageName(DPackageName *dpackagename)
-{
-  /* Code For DPackageName Goes Here */
-
-  dpackagename->listnamespaceid_->accept(this);
-
-}
-
-void CustomTypesParser::visitDFileName(DFileName *dfilename)
-{
-
-  // Save the file name
-
-  visitId(dfilename->id_);
-  tempString.append(".");
-  dfilename->fileending_->accept(this);
-}
+    // std::cout << "DEBUG: importedNameSpace: " << importedNameSpace << std::endl; 
+    // Now namespace and file name are saved, and we can open the file.
+    std::string fullFilePath;
+    FILE *importedFile;
+  
+    if (pathToImportFile == "") {
+        importedFile = fopen(importedFileName.c_str(), "r");
+        fullFilePath = importedFileName;
+    } else {
+        importedFile = fopen((pathToImportFile + "/" + importedFileName).c_str(), "r");
+        fullFilePath = pathToImportFile + "/" + importedFileName;
+    }
+  
+    if (!importedFile) {
+        std::cout << "Error importing fidl file from import statement: " << importedFileName << std::endl;
+        exit(1);
+    }
+  
+    // do stuff with file...
+    // ... but what?
+    // Import and render entire type collection for now.
+    // Should only import the specified namespace! TODO
+  
+  
+  
+    // The code redirecting cout and printing line where parse error occurs is copied from GenerateXML. Should probably be refactored! TODO
   
 
-void CustomTypesParser::visitDFileNameNoEnd(DFileNameNoEnd *dfilenamenoend)
-{
-  visitId(dfilenamenoend->id_);
+    // Temporarily redirect cout, so that we can save the line number of any parse error.
+    // This is done rather than change Parser.C since Parser is auto-generated and will be
+    // regenerated each time bnfc is run.
+    std::streambuf* oldCoutStreamBuf = std::cout.rdbuf();
+    std::ostringstream strCout;
+    std::cout.rdbuf(strCout.rdbuf());
   
-}
-
-void CustomTypesParser::visitDFileEnding(DFileEnding *dfileending)
-{
-  /* Code For DFileEnding Goes Here */
-
-  visitId(dfileending->id_);
-
-}
-
-void CustomTypesParser::visitDNamespace(DNamespace *dnamespace)
-{
-  /* Code For DNamespace Goes Here */
-
-  dnamespace->listnamespaceid_->accept(this);
-
-}
-
-void CustomTypesParser::visitDNamespaceID(DNamespaceID *dnamespaceid)
-{
-  /* Code For DNamespaceID Goes Here */
-
-  visitId(dnamespaceid->id_);
-
-}
-
-void CustomTypesParser::visitDIBody(DIBody *dibody)
-{
-  /* Code For DIBody Goes Here */
-
-  dibody->listibodyitem_->accept(this);
-
-}
-
-void CustomTypesParser::visitDMethod(DMethod *dmethod)
-{
-  /* Code For DMethod Goes Here */
-
-  visitId(dmethod->id_);
-
-}
-
-void CustomTypesParser::visitDInMethod(DInMethod *dinmethod)
-{
-  /* Code For DInMethod Goes Here */
-
-  visitId(dinmethod->id_);
-  dinmethod->listinvari_->accept(this);
-
-}
-
-void CustomTypesParser::visitDOutMethod(DOutMethod *doutmethod)
-{
-  /* Code For DOutMethod Goes Here */
-
-  visitId(doutmethod->id_);
-  doutmethod->listoutvari_->accept(this);
-
-}
-
-void CustomTypesParser::visitDInOutMethod(DInOutMethod *dinoutmethod)
-{
-  /* Code For DInOutMethod Goes Here */
-
-  visitId(dinoutmethod->id_);
-  dinoutmethod->listinvari_->accept(this);
-  dinoutmethod->listoutvari_->accept(this);
-
-}
-
-void CustomTypesParser::visitDVersion(DVersion *dversion)
-{
-  /* Code For DVersion Goes Here */
-
-  visitInteger(dversion->integer_1);
-  visitInteger(dversion->integer_2);
-
-}
-
-void CustomTypesParser::visitDAttrib(DAttrib *dattrib)
-{
-  /* Code For DAttrib Goes Here */
-
-  dattrib->type_->accept(this);
-  visitId(dattrib->id_);
-
-}
-
-void CustomTypesParser::visitDAttribReadOnly(DAttribReadOnly *dattribreadonly)
-{
-  /* Code For DAttribReadOnly Goes Here */
-
-  dattribreadonly->type_->accept(this);
-  visitId(dattribreadonly->id_);
-
-}
-
-void CustomTypesParser::visitDAttribNoSub(DAttribNoSub *dattribnosub)
-{
-  /* Code For DAttribNoSub Goes Here */
-
-  dattribnosub->type_->accept(this);
-  visitId(dattribnosub->id_);
-
-}
-
-void CustomTypesParser::visitDAttribReadOnlyNoSub(DAttribReadOnlyNoSub *dattribreadonlynosub)
-{
-  /* Code For DAttribReadOnlyNoSub Goes Here */
-
-  dattribreadonlynosub->type_->accept(this);
-  visitId(dattribreadonlynosub->id_);
-
-}
-
-void CustomTypesParser::visitDAttribReadOnlyNoSub2(DAttribReadOnlyNoSub2 *dattribreadonlynosub2)
-{
-  /* Code For DAttribReadOnlyNoSub2 Goes Here */
-
-  dattribreadonlynosub2->type_->accept(this);
-  visitId(dattribreadonlynosub2->id_);
-
-}
-
-void CustomTypesParser::visitDEnumDef(DEnumDef *denumdef)
-{
-
-  CustomType *ct = new CustomType();
-  ct->setType(FRANCA_ENUM);
-
-  tempString = "";
-  visitId(denumdef->id_);
-  ct->setName(tempString);
+    Program *imported_parse_tree = pProgram(importedFile);
   
-  currentCT = ct;
-  denumdef->enumlist_->accept(this);
+    // Restore old cout and save the contents of temp cout.
+    std::cout.rdbuf(oldCoutStreamBuf);
+    std::string parserOutput = strCout.str();
   
-  unfinished.push_back(*ct);
-}
-
-void CustomTypesParser::visitDExtendedEnumDef(DExtendedEnumDef *dextendedenumdef)
-{ 
-
-  CustomType *ct = new CustomType();
-  ct->setType(FRANCA_ENUM);
-
-  tempString = "";
-  dextendedenumdef->enumid_->accept(this);
-  ct->setName(tempString);
-  
-  tempString = "";
-  visitId(dextendedenumdef->id_);
-  ct->setEnumExtends(tempString);
-  
-  currentCT = ct;
-  dextendedenumdef->enumlist_->accept(this);
-  
-  unfinished.push_back(*ct);
-}
-
-void CustomTypesParser::visitDTypeDef(DTypeDef *dtypedef)
-{
-
-  CustomType *ct = new CustomType();
-  ct->setType(FRANCA_TYPEDEF);
-  
-  tempString = "";  
-  dtypedef->typedefid_->accept(this);
-  ct->setName(tempString);
-  
-  tempString = "";  
-  dtypedef->type_->accept(this);
-  ct->setDBusSign(tempString);
-  
-  unfinished.push_back(*ct);
-}
-
-void CustomTypesParser::visitDTypeDefCustom(DTypeDefCustom *dtypedefcustom)
-{
-
-  CustomType *ct = new CustomType();
-  ct->setType(FRANCA_TYPEDEF);
-  
-  tempString = "";  
-  dtypedefcustom->typedefid_->accept(this);
-  ct->setName(tempString);
-  
-  tempString = "";  
-  visitId(dtypedefcustom->id_);
-  ct->setData(tempString);
-  
-  unfinished.push_back(*ct);
-}
-
-void CustomTypesParser::visitDInVar(DInVar *dinvar)
-{
-  /* Code For DInVar Goes Here */
-
-  dinvar->type_->accept(this);
-  visitId(dinvar->id_);
-
-}
-
-void CustomTypesParser::visitDOutVar(DOutVar *doutvar)
-{
-  /* Code For DOutVar Goes Here */
-
-  doutvar->type_->accept(this);
-  visitId(doutvar->id_);
-
-}
-
-void CustomTypesParser::visitDVar(DVar *dvar)
-{
-  /* Code For DVar Goes Here */
-
-  dvar->type_->accept(this);
-  visitId(dvar->id_);
-
-}
-
-void CustomTypesParser::visitDEnumIdent(DEnumIdent *denumident)
-{
-  /* Code For DEnumIdent Goes Here */
-
-  visitId(denumident->id_);
-
-}
-
-void CustomTypesParser::visitDEnumList(DEnumList *denumlist)
-{
-  /* Code For DEnumList Goes Here */
+    if (imported_parse_tree && importedFile) {
+        CustomTypesParser *parser = new CustomTypesParser();
+        std::vector<CustomType> newUnfinishedTypes = parser->findUnfinishedTypes(imported_parse_tree, pathToImportFile);
     
-  denumlist->listenum_->accept(this);
-
-}
-
-void CustomTypesParser::visitDEnum(DEnum *denum)
-{
-
-  tempString = "";
-  visitId(denum->id_);
-  currentCT->addEnum(tempString, "");
-}
-
-void CustomTypesParser::visitDEnumValue(DEnumValue *denumvalue)
-{
-  tempString = "";
-  visitId(denumvalue->id_);
-  std::string tempEnumMemberName = tempString;
-
-  tempString = "";
-  visitInteger(denumvalue->integer_);
+        unfinished.insert(unfinished.end(), newUnfinishedTypes.begin(), newUnfinishedTypes.end());
+    } else {
   
-  currentCT->addEnum(tempEnumMemberName, tempString);
+        // If there are parse errors, find the line number of the parse error and print that line
+    
+        size_t indexOfLineNbr = parserOutput.rfind("line ");
+        if (indexOfLineNbr != -1) {
+            // An error message containing a line number was found. Save the line number.
+            std::string lineNbrStr = parserOutput.substr(indexOfLineNbr + 5, parserOutput.length());
+            //std::cout << "lineNbrStr = \"" << lineNbrStr << "\"" << std::endl;
+            int lineNbr;
+            std::istringstream (lineNbrStr) >> lineNbr;
+
+            // Reopen the file to find the line with errors. Not the best solution but works.
+            std::ifstream theFidlFile(fullFilePath.c_str());
+            std::string currentLine;
+            if (theFidlFile.is_open()) {
+                for (int i = 0; i < lineNbr; i++) {
+                    std::getline(theFidlFile, currentLine);
+                    if (i == lineNbr - 1) {
+                        // Print the content of line number of parse error
+                        std::cout << "Error parsing file " << fullFilePath << " at line " << lineNbr << ":" << std::endl << currentLine << std::endl;
+                    }
+                }
+                theFidlFile.close();
+            }
+
+            std::cout << "Error parsing imported fidl file: " << importedFileName << std::endl;
+        }
+    }
+    fclose(importedFile);
 }
 
-void CustomTypesParser::visitDTypeDefIdent(DTypeDefIdent *dtypedefident)
-{
-  visitId(dtypedefident->id_);
+void CustomTypesParser::visitDPackageName(DPackageName *dpackagename) {
+    dpackagename->listnamespaceid_->accept(this);
 }
 
-void CustomTypesParser::visitDUIntEight(DUIntEight *duinteight)
-{
-  tempString.append("y");
-}
+void CustomTypesParser::visitDFileName(DFileName *dfilename) {
 
-void CustomTypesParser::visitDIntEight(DIntEight *dinteight)
-{
-  std::cout << "ERROR: Franca type 'Int8' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
-  exit(1);
-}
+    // Save the file name
 
-void CustomTypesParser::visitDUIntSixteen(DUIntSixteen *duintsixteen)
-{
-  tempString.append("q");
-}
-
-void CustomTypesParser::visitDIntSixteen(DIntSixteen *dintsixteen)
-{
-  tempString.append("n");
-}
-
-void CustomTypesParser::visitDUIntThirtyTwo(DUIntThirtyTwo *duintthirtytwo)
-{
-  tempString.append("u");
-}
-
-void CustomTypesParser::visitDIntThirtyTwo(DIntThirtyTwo *dintthirtytwo)
-{
-  tempString.append("i");
-}
-
-void CustomTypesParser::visitDUIntSixtyFour(DUIntSixtyFour *duintsixtyfour)
-{
-  tempString.append("t");
-}
-
-void CustomTypesParser::visitDIntSixtyFour(DIntSixtyFour *dintsixtyfour)
-{
-  tempString.append("x");
-}
-
-void CustomTypesParser::visitDBoolean(DBoolean *dboolean)
-{
-  tempString.append("b");
-}
-
-void CustomTypesParser::visitDFloat(DFloat *dfloat)
-{
-  std::cout << "ERROR: Franca type 'Float' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
-  exit(1);
-}
-
-void CustomTypesParser::visitDDouble(DDouble *ddouble)
-{
-  tempString.append("d");
-}
-
-void CustomTypesParser::visitDString(DString *dstring)
-{
-  tempString.append("s");
-}
-
-void CustomTypesParser::visitDByteBuffer(DByteBuffer *dbytebuffer)
-{
-  std::cout << "ERROR: Franca type 'ByteBuffer' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
-  exit(1);
-}
-
-void CustomTypesParser::visitDCustomType(DCustomType *dcustomtype)
-{
-  visitId(dcustomtype->id_);
-}
-
-
-void CustomTypesParser::visitListDef(ListDef* listdef)
-{
-  for (ListDef::iterator i = listdef->begin() ; i != listdef->end() ; ++i)
-  {
-    (*i)->accept(this);
-  }
-}
-
-void CustomTypesParser::visitListNamespaceID(ListNamespaceID* listnamespaceid)
-{
-  for (ListNamespaceID::iterator i = listnamespaceid->begin() ; i != listnamespaceid->end() ; ++i)
-  {
-    (*i)->accept(this);
+    visitId(dfilename->id_);
     tempString.append(".");
-  }
+    dfilename->fileending_->accept(this);
+}
+  
+
+void CustomTypesParser::visitDFileNameNoEnd(DFileNameNoEnd *dfilenamenoend) {
+    visitId(dfilenamenoend->id_);
 }
 
-void CustomTypesParser::visitListIBodyItem(ListIBodyItem* listibodyitem)
-{
-  for (ListIBodyItem::iterator i = listibodyitem->begin() ; i != listibodyitem->end() ; ++i)
-  {
-    (*i)->accept(this);
-  }
+void CustomTypesParser::visitDFileEnding(DFileEnding *dfileending) {
+    visitId(dfileending->id_);
 }
 
-void CustomTypesParser::visitListVari(ListVari* listvari)
-{
-  for (ListVari::iterator i = listvari->begin() ; i != listvari->end() ; ++i)
-  {
-    (*i)->accept(this);
-  }
+void CustomTypesParser::visitDNamespace(DNamespace *dnamespace) {
+    dnamespace->listnamespaceid_->accept(this);
 }
 
-void CustomTypesParser::visitListInVari(ListInVari* listinvari)
-{
-  for (ListInVari::iterator i = listinvari->begin() ; i != listinvari->end() ; ++i)
-  {
-    (*i)->accept(this);
-  }
+void CustomTypesParser::visitDNamespaceID(DNamespaceID *dnamespaceid) {
+    visitId(dnamespaceid->id_);
 }
 
-void CustomTypesParser::visitListOutVari(ListOutVari* listoutvari)
-{
-  for (ListOutVari::iterator i = listoutvari->begin() ; i != listoutvari->end() ; ++i)
-  {
-    (*i)->accept(this);
-  }
+void CustomTypesParser::visitDIBody(DIBody *dibody) {
+    dibody->listibodyitem_->accept(this);
 }
 
-void CustomTypesParser::visitListEnum(ListEnum* listenum)
-{
-  for (ListEnum::iterator i = listenum->begin() ; i != listenum->end() ; ++i)
-  {
-    (*i)->accept(this);
-  }
+void CustomTypesParser::visitDMethod(DMethod *dmethod) {
+    visitId(dmethod->id_);
+}
+
+void CustomTypesParser::visitDInMethod(DInMethod *dinmethod) {
+    visitId(dinmethod->id_);
+    dinmethod->listinvari_->accept(this);
+}
+
+void CustomTypesParser::visitDOutMethod(DOutMethod *doutmethod) {
+    visitId(doutmethod->id_);
+    doutmethod->listoutvari_->accept(this);
+}
+
+void CustomTypesParser::visitDInOutMethod(DInOutMethod *dinoutmethod) {
+    visitId(dinoutmethod->id_);
+    dinoutmethod->listinvari_->accept(this);
+    dinoutmethod->listoutvari_->accept(this);
+}
+
+void CustomTypesParser::visitDVersion(DVersion *dversion) {
+    visitInteger(dversion->integer_1);
+    visitInteger(dversion->integer_2);
+}
+
+void CustomTypesParser::visitDAttrib(DAttrib *dattrib) {
+    dattrib->type_->accept(this);
+    visitId(dattrib->id_);
+}
+
+void CustomTypesParser::visitDAttribReadOnly(DAttribReadOnly *dattribreadonly) {
+    dattribreadonly->type_->accept(this);
+    visitId(dattribreadonly->id_);
+}
+
+void CustomTypesParser::visitDAttribNoSub(DAttribNoSub *dattribnosub) {
+    dattribnosub->type_->accept(this);
+    visitId(dattribnosub->id_);
+}
+
+void CustomTypesParser::visitDAttribReadOnlyNoSub(DAttribReadOnlyNoSub *dattribreadonlynosub) {
+    dattribreadonlynosub->type_->accept(this);
+    visitId(dattribreadonlynosub->id_);
+}
+
+void CustomTypesParser::visitDAttribReadOnlyNoSub2(DAttribReadOnlyNoSub2 *dattribreadonlynosub2) {
+    dattribreadonlynosub2->type_->accept(this);
+    visitId(dattribreadonlynosub2->id_);
+}
+
+void CustomTypesParser::visitDEnumDef(DEnumDef *denumdef) {
+
+    CustomType *ct = new CustomType();
+    ct->setType(FRANCA_ENUM);
+
+    tempString = "";
+    visitId(denumdef->id_);
+    ct->setName(tempString);
+  
+    currentCT = ct;
+    denumdef->enumlist_->accept(this);
+  
+    unfinished.push_back(*ct);
+}
+
+void CustomTypesParser::visitDExtendedEnumDef(DExtendedEnumDef *dextendedenumdef) { 
+    
+    CustomType *ct = new CustomType();
+    ct->setType(FRANCA_ENUM);
+
+    tempString = "";
+    dextendedenumdef->enumid_->accept(this);
+    ct->setName(tempString);
+  
+    tempString = "";
+    visitId(dextendedenumdef->id_);
+    ct->setEnumExtends(tempString);
+  
+    currentCT = ct;
+    dextendedenumdef->enumlist_->accept(this);
+  
+    unfinished.push_back(*ct);
+}
+
+void CustomTypesParser::visitDTypeDef(DTypeDef *dtypedef) {
+
+    CustomType *ct = new CustomType();
+    ct->setType(FRANCA_TYPEDEF);
+  
+    tempString = "";  
+    dtypedef->typedefid_->accept(this);
+    ct->setName(tempString);
+  
+    tempString = "";  
+    dtypedef->type_->accept(this);
+    ct->setDBusSign(tempString);
+  
+    unfinished.push_back(*ct);
+}
+
+void CustomTypesParser::visitDTypeDefCustom(DTypeDefCustom *dtypedefcustom) {
+
+    CustomType *ct = new CustomType();
+    ct->setType(FRANCA_TYPEDEF);
+  
+    tempString = "";  
+    dtypedefcustom->typedefid_->accept(this);
+    ct->setName(tempString);
+  
+    tempString = "";  
+    visitId(dtypedefcustom->id_);
+    ct->setData(tempString);
+  
+    unfinished.push_back(*ct);
+}
+
+void CustomTypesParser::visitDInVar(DInVar *dinvar) {
+    dinvar->type_->accept(this);
+    visitId(dinvar->id_);
+}
+
+void CustomTypesParser::visitDOutVar(DOutVar *doutvar) {
+    doutvar->type_->accept(this);
+    visitId(doutvar->id_);
+}
+
+void CustomTypesParser::visitDVar(DVar *dvar) {
+    dvar->type_->accept(this);
+    visitId(dvar->id_);
+}
+
+void CustomTypesParser::visitDEnumIdent(DEnumIdent *denumident) {
+    visitId(denumident->id_);
+}
+
+void CustomTypesParser::visitDEnumList(DEnumList *denumlist) {
+    denumlist->listenum_->accept(this);
+}
+
+void CustomTypesParser::visitDEnum(DEnum *denum) {
+
+    tempString = "";
+    visitId(denum->id_);
+    currentCT->addEnum(tempString, "");
+}
+
+void CustomTypesParser::visitDEnumValue(DEnumValue *denumvalue) {
+    tempString = "";
+    visitId(denumvalue->id_);
+    std::string tempEnumMemberName = tempString;
+
+    tempString = "";
+    visitInteger(denumvalue->integer_);
+  
+    currentCT->addEnum(tempEnumMemberName, tempString);
+}
+
+void CustomTypesParser::visitDTypeDefIdent(DTypeDefIdent *dtypedefident) {
+    visitId(dtypedefident->id_);
+}
+
+void CustomTypesParser::visitDUIntEight(DUIntEight *duinteight) {
+    tempString.append("y");
+}
+
+void CustomTypesParser::visitDIntEight(DIntEight *dinteight) {
+    std::cout << "ERROR: Franca type 'Int8' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
+    exit(1);
+}
+
+void CustomTypesParser::visitDUIntSixteen(DUIntSixteen *duintsixteen) {
+    tempString.append("q");
+}
+
+void CustomTypesParser::visitDIntSixteen(DIntSixteen *dintsixteen) {
+    tempString.append("n");
+}
+
+void CustomTypesParser::visitDUIntThirtyTwo(DUIntThirtyTwo *duintthirtytwo) {
+    tempString.append("u");
+}
+
+void CustomTypesParser::visitDIntThirtyTwo(DIntThirtyTwo *dintthirtytwo) {
+    tempString.append("i");
+}
+
+void CustomTypesParser::visitDUIntSixtyFour(DUIntSixtyFour *duintsixtyfour) {
+    tempString.append("t");
+}
+
+void CustomTypesParser::visitDIntSixtyFour(DIntSixtyFour *dintsixtyfour) {
+    tempString.append("x");
+}
+
+void CustomTypesParser::visitDBoolean(DBoolean *dboolean) {
+    tempString.append("b");
+}
+
+void CustomTypesParser::visitDFloat(DFloat *dfloat) {
+    std::cout << "ERROR: Franca type 'Float' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
+    exit(1);
+}
+
+void CustomTypesParser::visitDDouble(DDouble *ddouble) {
+    tempString.append("d");
+}
+
+void CustomTypesParser::visitDString(DString *dstring) {
+    tempString.append("s");
+}
+
+void CustomTypesParser::visitDByteBuffer(DByteBuffer *dbytebuffer) {
+    std::cout << "ERROR: Franca type 'ByteBuffer' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
+    exit(1);
+}
+
+void CustomTypesParser::visitDCustomType(DCustomType *dcustomtype) {
+    visitId(dcustomtype->id_);
 }
 
 
-void CustomTypesParser::visitId(Id x)
-{
-  tempString.append(x);
+void CustomTypesParser::visitListDef(ListDef* listdef) {
+    for (ListDef::iterator i = listdef->begin() ; i != listdef->end() ; ++i) {
+        (*i)->accept(this);
+    }
 }
 
-void CustomTypesParser::visitInteger(Integer x)
-{
-  std::ostringstream convert;
-  convert << x;
-  tempString.append(convert.str());
+void CustomTypesParser::visitListNamespaceID(ListNamespaceID* listnamespaceid) {
+    for (ListNamespaceID::iterator i = listnamespaceid->begin() ; i != listnamespaceid->end() ; ++i) {
+        (*i)->accept(this);
+        tempString.append(".");
+    }
 }
 
-void CustomTypesParser::visitChar(Char x)
-{
-  std::ostringstream convert;
-  convert << x;
-  tempString.append(convert.str());
+void CustomTypesParser::visitListIBodyItem(ListIBodyItem* listibodyitem) {
+    for (ListIBodyItem::iterator i = listibodyitem->begin() ; i != listibodyitem->end() ; ++i) {
+        (*i)->accept(this);
+    }
 }
 
-void CustomTypesParser::visitDouble(Double x)
-{
-  std::ostringstream convert;
-  convert << x;
-  tempString.append(convert.str());
+void CustomTypesParser::visitListVari(ListVari* listvari) {
+    for (ListVari::iterator i = listvari->begin() ; i != listvari->end() ; ++i) {
+        (*i)->accept(this);
+    }
 }
 
-void CustomTypesParser::visitString(String x)
-{
-  tempString.append(x);
+void CustomTypesParser::visitListInVari(ListInVari* listinvari) {
+    for (ListInVari::iterator i = listinvari->begin() ; i != listinvari->end() ; ++i) {
+        (*i)->accept(this);
+    }
 }
 
-void CustomTypesParser::visitIdent(Ident x)
-{
-  tempString.append(x);
+void CustomTypesParser::visitListOutVari(ListOutVari* listoutvari) {
+    for (ListOutVari::iterator i = listoutvari->begin() ; i != listoutvari->end() ; ++i) {
+        (*i)->accept(this);
+    }
+}
+
+void CustomTypesParser::visitListEnum(ListEnum* listenum) {
+    for (ListEnum::iterator i = listenum->begin() ; i != listenum->end() ; ++i) {
+        (*i)->accept(this);
+    }
+}
+
+void CustomTypesParser::visitId(Id x) {
+    tempString.append(x);
+}
+
+void CustomTypesParser::visitInteger(Integer x) {
+    std::ostringstream convert;
+    convert << x;
+    tempString.append(convert.str());
+}
+
+void CustomTypesParser::visitChar(Char x) {
+    std::ostringstream convert;
+    convert << x;
+    tempString.append(convert.str());
+}
+
+void CustomTypesParser::visitDouble(Double x) {
+    std::ostringstream convert;
+    convert << x;
+    tempString.append(convert.str());
+}
+
+void CustomTypesParser::visitString(String x) {
+    tempString.append(x);
+}
+
+void CustomTypesParser::visitIdent(Ident x) {
+    tempString.append(x);
 }
