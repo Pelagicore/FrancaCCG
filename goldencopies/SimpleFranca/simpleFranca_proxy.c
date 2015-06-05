@@ -1,6 +1,6 @@
 #include "simpleFranca_proxy.h"
 #include <stdio.h>
-
+#include <stdlib.h>
 
 void FrancaccodegenVerySimpleFrancaInterface_theOnlyMethod__n_n__i_s(GDBusProxy *proxy, gint16 arg_firstNumber, gint16 arg_secondNumber, const GAsyncReadyCallback callback) {
 
@@ -15,20 +15,27 @@ void FrancaccodegenVerySimpleFrancaInterface_theOnlyMethod__n_n__i_s(GDBusProxy 
         NULL); 
 }
 
-void FrancaccodegenVerySimpleFrancaInterface_theOnlyMethod__n_n__i_s_finish (GDBusProxy *proxy, gint32 *out_sumOfNumbers_out0, const gchar * *out_stringOfNumbers_out1, GAsyncResult *result) {
+void FrancaccodegenVerySimpleFrancaInterface_theOnlyMethod__n_n__i_s_finish (GDBusProxy *proxy, gint32 *out_sumOfNumbers_out0, const gchar * *out_stringOfNumbers_out1, GAsyncResult *result, gboolean *success) {
     // Get result from method call from d-bus proxy
     GVariant *wrapped;
-    wrapped = g_dbus_proxy_call_finish(proxy, result, NULL);
+    GError *error = NULL;
+    wrapped = g_dbus_proxy_call_finish(proxy, result, &error);
 
-    // Put results of method call in parameters
-    GVariant *sumOfNumbers_out0_variant;
-    sumOfNumbers_out0_variant = g_variant_get_child_value(wrapped, 0);
-    *out_sumOfNumbers_out0 = g_variant_get_int32(sumOfNumbers_out0_variant);
+    if (error != NULL) {
+        printf("WARNING: Method call to theOnlyMethod did not succeed.\nGError content: %s\n", error->message);
+        *success = FALSE;
+    } else {
 
-    GVariant *stringOfNumbers_out1_variant;
-    stringOfNumbers_out1_variant = g_variant_get_child_value(wrapped, 1);
-    *out_stringOfNumbers_out1 = g_variant_get_string(stringOfNumbers_out1_variant, NULL);
+        // Put results of method call in parameters
+        GVariant *sumOfNumbers_out0_variant;
+        sumOfNumbers_out0_variant = g_variant_get_child_value(wrapped, 0);
+        *out_sumOfNumbers_out0 = g_variant_get_int32(sumOfNumbers_out0_variant);
 
+        GVariant *stringOfNumbers_out1_variant;
+        stringOfNumbers_out1_variant = g_variant_get_child_value(wrapped, 1);
+        *out_stringOfNumbers_out1 = g_variant_get_string(stringOfNumbers_out1_variant, NULL);
+        *success = TRUE;
+    }
 }
 
 
@@ -47,16 +54,23 @@ void FrancaccodegenVerySimpleFrancaInterface_theSecondMethod__s__s(GDBusProxy *p
         NULL); 
 }
 
-void FrancaccodegenVerySimpleFrancaInterface_theSecondMethod__s__s_finish (GDBusProxy *proxy, const gchar * *out_anotherString_out0, GAsyncResult *result) {
+void FrancaccodegenVerySimpleFrancaInterface_theSecondMethod__s__s_finish (GDBusProxy *proxy, const gchar * *out_anotherString_out0, GAsyncResult *result, gboolean *success) {
     // Get result from method call from d-bus proxy
     GVariant *wrapped;
-    wrapped = g_dbus_proxy_call_finish(proxy, result, NULL);
+    GError *error = NULL;
+    wrapped = g_dbus_proxy_call_finish(proxy, result, &error);
 
+    if (error != NULL) {
+        printf("WARNING: Method call to theSecondMethod did not succeed.\nGError content: %s\n", error->message);
+        *success = FALSE;
+    } else {
+    
     // Put results from method call in parameters
     GVariant *anotherString_out0_variant;
     anotherString_out0_variant = g_variant_get_child_value(wrapped, 0);
     *out_anotherString_out0 = g_variant_get_string(anotherString_out0_variant, NULL);
-
+    *success = TRUE;
+    }
 }
 
 
@@ -75,16 +89,24 @@ void FrancaccodegenVerySimpleFrancaInterface_getColorOfObject__u__u(GDBusProxy *
         NULL); 
 }
 
-void FrancaccodegenVerySimpleFrancaInterface_getColorOfObject__u__u_finish (GDBusProxy *proxy, COLOR_TYPE *out_objectColor_out0, GAsyncResult *result) {
+void FrancaccodegenVerySimpleFrancaInterface_getColorOfObject__u__u_finish (GDBusProxy *proxy, COLOR_TYPE *out_objectColor_out0, GAsyncResult *result, gboolean *success) {
     // Get result from method call from d-bus proxy
     GVariant *wrapped;
-    wrapped = g_dbus_proxy_call_finish(proxy, result, NULL);
+    GError *error = NULL;
+    wrapped = g_dbus_proxy_call_finish(proxy, result, &error);
+
+    if (error != NULL) {
+        printf("WARNING: Method call to getColorOfObject did not succeed.\nGError content: %s\n", error->message);
+        *success = FALSE;
+    } else {
+    
 
     // Put results from method call in parameters
     GVariant *objectColor_out0_variant;
     objectColor_out0_variant = g_variant_get_child_value(wrapped, 0);
     *out_objectColor_out0 = g_variant_get_uint32(objectColor_out0_variant);
-
+    *success = TRUE;
+    }
 }
 
 
@@ -106,12 +128,18 @@ void FrancaccodegenVerySimpleFrancaInterface_createForBus (GBusType bus_type, GD
 
 // This function is called from implementation to finish creating proxy
 GDBusProxy* FrancaccodegenVerySimpleFrancaInterface_createforBusFinish(GAsyncResult* result) {
-    GDBusProxy* proxy = g_dbus_proxy_new_for_bus_finish(result, NULL);    
-    return proxy;
+    GError *error = NULL;
+    GDBusProxy* proxy = g_dbus_proxy_new_for_bus_finish(result, &error);
+    if (error == NULL) {
+        return proxy;
+    } else {
+        printf("ERROR: Cannot create proxy. Server stub is possibly offline.\nGError content: %s\nClosing proxy...\n", error->message);
+        exit(1);
+        return NULL;
+    }
 }
 
-void FrancaccodegenVerySimpleFrancaInterface_connectToPropertiesChanged(GDBusProxy *proxy, void(*callback)(GDBusProxy*, GVariant*, const gchar* const*, gpointer))
-{
+void FrancaccodegenVerySimpleFrancaInterface_connectToPropertiesChanged(GDBusProxy *proxy, void(*callback)(GDBusProxy*, GVariant*, const gchar* const*, gpointer)) {
     g_signal_connect (proxy,
                     "g-properties-changed",
                     G_CALLBACK(callback),
@@ -134,10 +162,20 @@ void FrancaccodegenVerySimpleFrancaInterface_anIntegerAttribute_u_set(GDBusProxy
         NULL); 
 }
 
-void FrancaccodegenVerySimpleFrancaInterface_anIntegerAttribute_u_set_finish (GDBusProxy *proxy, GAsyncResult *result) {
+void FrancaccodegenVerySimpleFrancaInterface_anIntegerAttribute_u_set_finish (GDBusProxy *proxy, GAsyncResult *result, gboolean *success) {
+    // Get result from method call from d-bus proxy
+    
     // Get result from method call from d-bus proxy
     GVariant *wrapped;
-    wrapped = g_dbus_proxy_call_finish(proxy, result, NULL);
+    GError *error = NULL;
+    wrapped = g_dbus_proxy_call_finish(proxy, result, &error);
+
+    if (error != NULL) {
+        printf("WARNING: Method call to anIntegerAttribute_u_set did not succeed.\nGError content: %s\n", error->message);
+        *success = FALSE;
+    } else {
+        *success = TRUE;
+    }
 }
 
 void FrancaccodegenVerySimpleFrancaInterface_anIntegerAttribute_u_get(GDBusProxy *proxy, const GAsyncReadyCallback callback) {
@@ -153,13 +191,21 @@ void FrancaccodegenVerySimpleFrancaInterface_anIntegerAttribute_u_get(GDBusProxy
         NULL); 
 }
 
-void FrancaccodegenVerySimpleFrancaInterface_anIntegerAttribute_u_get_finish(GDBusProxy *proxy, guint32 *value, GAsyncResult *result) {
+void FrancaccodegenVerySimpleFrancaInterface_anIntegerAttribute_u_get_finish(GDBusProxy *proxy, guint32 *value, GAsyncResult *result, gboolean *success) {
+    // Get result from method call from d-bus proxy
     GVariant *wrapped;
-    wrapped = g_dbus_proxy_call_finish(proxy, result, NULL);
+    GError *error = NULL;
+    wrapped = g_dbus_proxy_call_finish(proxy, result, &error);
 
-    GVariant *value_variant;
-    value_variant = g_variant_get_child_value(wrapped, 0);  
-    *value = g_variant_get_uint32(g_variant_get_variant(value_variant));
+    if (error != NULL) {
+        printf("WARNING: Method call to anIntegerAttribute_u_get did not succeed.\nGError content: %s\n", error->message);
+        *success = FALSE;
+    } else {
+        GVariant *value_variant;
+        value_variant = g_variant_get_child_value(wrapped, 0);  
+        *value = g_variant_get_uint32(g_variant_get_variant(value_variant));
+        *success = TRUE;
+    }
 }
 
 
@@ -178,10 +224,18 @@ void FrancaccodegenVerySimpleFrancaInterface_aStringAttribute_s_set(GDBusProxy *
         NULL); 
 }
 
-void FrancaccodegenVerySimpleFrancaInterface_aStringAttribute_s_set_finish (GDBusProxy *proxy, GAsyncResult *result) {
+void FrancaccodegenVerySimpleFrancaInterface_aStringAttribute_s_set_finish (GDBusProxy *proxy, GAsyncResult *result, gboolean *success) {
     // Get result from method call from d-bus proxy
     GVariant *wrapped;
-    wrapped = g_dbus_proxy_call_finish(proxy, result, NULL);
+    GError *error = NULL;
+    wrapped = g_dbus_proxy_call_finish(proxy, result, &error);
+
+    if (error != NULL) {
+        printf("WARNING: Method call to aStringAttribute_s_set did not succeed.\nGError content: %s\n", error->message);
+        *success = FALSE;
+    } else {
+        *success = TRUE;
+    }
 }
 
 void FrancaccodegenVerySimpleFrancaInterface_aStringAttribute_s_get(GDBusProxy *proxy, const GAsyncReadyCallback callback) {
@@ -197,13 +251,22 @@ void FrancaccodegenVerySimpleFrancaInterface_aStringAttribute_s_get(GDBusProxy *
         NULL); 
 }
 
-void FrancaccodegenVerySimpleFrancaInterface_aStringAttribute_s_get_finish(GDBusProxy *proxy, gchar **value, GAsyncResult *result) {
+void FrancaccodegenVerySimpleFrancaInterface_aStringAttribute_s_get_finish(GDBusProxy *proxy, gchar **value, GAsyncResult *result, gboolean *success) {
+   // Get result from method call from d-bus proxy
     GVariant *wrapped;
-    wrapped = g_dbus_proxy_call_finish(proxy, result, NULL);
+    GError *error = NULL;
+    wrapped = g_dbus_proxy_call_finish(proxy, result, &error);
 
-    GVariant *value_variant;
-    value_variant = g_variant_get_child_value(wrapped, 0);  
-    *value = g_variant_get_string(g_variant_get_variant(value_variant), NULL);
+    if (error != NULL) {
+        printf("WARNING: Method call to aStringAttribute_s_get did not succeed.\nGError content: %s\n", error->message);
+        *success = FALSE;
+    } else {
+
+        GVariant *value_variant;
+        value_variant = g_variant_get_child_value(wrapped, 0);  
+        *value = g_variant_get_string(g_variant_get_variant(value_variant), NULL);
+        *success = TRUE;
+    }
 }
 
 
@@ -222,11 +285,18 @@ void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_set(GDBusProxy *p
         NULL); 
 }
 
-void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_set_finish (GDBusProxy *proxy, GAsyncResult *result) {
-    // Get result from method call from d-bus proxy
+void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_set_finish (GDBusProxy *proxy, GAsyncResult *result, gboolean *success) {
+   // Get result from method call from d-bus proxy
     GVariant *wrapped;
-    wrapped = g_dbus_proxy_call_finish(proxy, result, NULL);
+    GError *error = NULL;
+    wrapped = g_dbus_proxy_call_finish(proxy, result, &error);
 
+    if (error != NULL) {
+        printf("WARNING: Method call to anEnumAttribute_u_set did not succeed.\nGError content: %s\n", error->message);
+        *success = FALSE;
+    } else {
+        *success = TRUE;
+    }
 }
 
 void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_get(GDBusProxy *proxy, const GAsyncReadyCallback callback) {
@@ -242,12 +312,20 @@ void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_get(GDBusProxy *p
         NULL); 
 }
 
-void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_get_finish(GDBusProxy *proxy, guint32 *value, GAsyncResult *result) {
+void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_get_finish(GDBusProxy *proxy, guint32 *value, GAsyncResult *result, gboolean *success) {
+   // Get result from method call from d-bus proxy
     GVariant *wrapped;
-    wrapped = g_dbus_proxy_call_finish(proxy, result, NULL);
+    GError *error = NULL;
+    wrapped = g_dbus_proxy_call_finish(proxy, result, &error);
 
-    GVariant *value_variant;
-    value_variant = g_variant_get_child_value(wrapped, 0);  
-    *value = g_variant_get_uint32(g_variant_get_variant(value_variant));
+    if (error != NULL) {
+        printf("WARNING: Method call to anEnumAttribute_u_get did not succeed.\nGError content: %s\n", error->message);
+        *success = FALSE;
+    } else {
+
+        GVariant *value_variant;
+        value_variant = g_variant_get_child_value(wrapped, 0);  
+        *value = g_variant_get_uint32(g_variant_get_variant(value_variant));
+        *success = TRUE;
+    }
 }
-
