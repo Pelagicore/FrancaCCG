@@ -19,15 +19,16 @@
 class CustomTypesParser : public Visitor {
 
 protected:
-    std::string importedFileName;
-    std::string importedNameSpace;
     std::string pathToImportFile;
+    std::string currentFQN;    
     std::string tempString;
     CustomType* currentCT;
     std::vector<CustomType> unfinished;
+    std::string namespaceToImport;
 
     std::vector<CustomType> parseUnfinishedList(std::vector<CustomType> unfinished);
-  
+    bool isInNamespaceToImport(std::string fqn, std::string ns);
+    
     void visitProgram(Program* p);
     void visitDef(Def* p);
     void visitPackageName(PackageName* p);
@@ -56,6 +57,7 @@ protected:
     void visitDFileEnding(DFileEnding* p);
     void visitDNamespace(DNamespace* p);
     void visitDNamespaceID(DNamespaceID* p);
+    void visitDNamespaceIDAll(DNamespaceIDAll* p);    
     void visitDIBody(DIBody* p);
     void visitDMethod(DMethod* p);
     void visitDInMethod(DInMethod* p);
@@ -110,8 +112,8 @@ protected:
 
 public:
   
-    std::vector<CustomType> findCustomTypes(Visitable *v, String s);
-    std::vector<CustomType> findUnfinishedTypes(Visitable *v, String s);
+    std::vector<CustomType> findCustomTypes(Visitable *v, std::string s, std::string ns);
+    std::vector<CustomType> findUnfinishedTypes(Visitable *v, std::string s, std::string ns);
 
     CustomTypesParser(void);
     ~CustomTypesParser(void);

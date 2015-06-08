@@ -110,7 +110,7 @@ char* GenerateDBusXML::generate(Visitable *v, std::string s) {
 
 void GenerateDBusXML::createCustomTypesList(Visitable *v, std::string s) {
     CustomTypesParser *parser = new CustomTypesParser();
-    finishedTypes = parser->findCustomTypes(v, s);
+    finishedTypes = parser->findCustomTypes(v, s, "*"); // "*" to import entire namespace
     // finishedTypes now contain a list of all custom types in fidl file, together with their d-bus signature
 }
 
@@ -377,6 +377,11 @@ void GenerateDBusXML::visitListNamespaceID(ListNamespaceID* listnamespaceid) {
         (*i)->accept(this);
         render(".");
     }
+}
+
+
+void GenerateDBusXML::visitDNamespaceIDAll(DNamespaceIDAll *dnamespaceidall) {
+  /* Code For DNamespaceIDAll Goes Here */
 }
 
 

@@ -23,12 +23,14 @@ DTypeCollection.	Def ::= "typeCollection" Id "{" IBody "}" ;
 
 
 -- Import from another Franca file. Not sure how this should be handled. What to import?
-DImport.		Def ::= "import" Namespace ".*" "from" "\"" FileName "\"" ;
+DImport.		Def ::= "import" Namespace "from" "\"" FileName "\"" ;
+-- DImport.		Def ::= "import" Namespace ".*" "from" "\"" FileName "\"" ;
 DFileName.		FileName ::= Id "." FileEnding ;
 DFileNameNoEnd.		FileName ::= Id ;
 DFileEnding.		FileEnding ::= Id ;
 DNamespace.		Namespace ::= [NamespaceID] ;
 DNamespaceID.		NamespaceID ::= Id ;
+DNamespaceIDAll.           NamespaceID ::= "*" ;
 separator NamespaceID "." ;
 
 

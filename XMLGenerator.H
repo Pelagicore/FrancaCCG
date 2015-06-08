@@ -119,6 +119,7 @@ protected:
     void visitDFileEnding(DFileEnding* p);
     void visitDNamespace(DNamespace* p);
     void visitDNamespaceID(DNamespaceID* p);
+    void visitDNamespaceIDAll(DNamespaceIDAll* p);
     void visitNamespace(Namespace* p);
     void visitNamespaceID(NamespaceID* p);
     void visitListNamespaceID(ListNamespaceID* p);

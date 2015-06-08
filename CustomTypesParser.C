@@ -23,20 +23,49 @@ CustomTypesParser::CustomTypesParser(void) {
 CustomTypesParser::~CustomTypesParser(void) {
 }
 
-std::vector<CustomType> CustomTypesParser::findCustomTypes(Visitable *v, std::string s) {
+std::vector<CustomType> CustomTypesParser::findCustomTypes(Visitable *v, std::string s, std::string ns) {
     pathToImportFile = s;
+    namespaceToImport = ns;
     v->accept(this);    
     
     return parseUnfinishedList(unfinished);
 }
 
-std::vector<CustomType> CustomTypesParser::findUnfinishedTypes(Visitable *v, std::string s) {
+std::vector<CustomType> CustomTypesParser::findUnfinishedTypes(Visitable *v, std::string s, std::string ns) {
     // This has the same functionality as findCustomTypes, but does not try to parse the found types.
     // Used to import type collections in other Franca files.
     pathToImportFile = s;
+    namespaceToImport = ns;
     v->accept(this); 
      
     return unfinished;
+}
+
+bool CustomTypesParser::isInNamespaceToImport(std::string fqn, std::string ns) {
+    std::cout << "DEBUG: In isInNamespaceToImport. fqn: " << fqn << ", ns: " << ns << std::endl;
+    if (ns.compare("*") == 0) {
+        std::cout << "DEBUG: Added " << fqn.substr(fqn.rfind(".") + 1, fqn.length()) << " (because ns = *)" << std::endl;
+        return true;
+    } else if (fqn.compare(ns) == 0) {
+        // namespaceToImport specifies this particular object. Import it.
+        std::cout << "DEBUG: Added " << fqn.substr(fqn.rfind(".") + 1, fqn.length()) << " (because namespaceToImport == FQN)" << std::endl;
+        return true;
+        
+    } else if (ns.rfind(".*") != std::string::npos) {
+        //std::cout << "DEBUG: ns.rfind(\".*\"): " << ns.rfind(".*") << std::endl;
+        // namespace to import ends with .*
+        // need to check this FQN begins with part of namespace before .*
+        if (fqn.find(ns.substr(0, ns.rfind(".*"))) == 0) {
+            // FQN and namespaceToImport indicated this element should be imported.
+            std::cout << "DEBUG: Added " << fqn.substr(fqn.rfind(".") + 1, fqn.length()) << " (because FQN in .* of namespaceToImport)" << std::endl;
+            return true;
+        } else {
+            std::cout << "DEBUG: Did NOT add " << fqn.substr(fqn.rfind("."), fqn.length()) << " (because NOT in .* of namespaceToImport)" << std::endl;
+            return false;
+        }
+    }
+    std::cout << "DEBUG: Did NOT add " << fqn.substr(fqn.rfind("."), fqn.length()) << " (because namespaceToImport != FQN)" << std::endl;
+    return false;
 }
 
 std::vector<CustomType> CustomTypesParser::parseUnfinishedList(std::vector<CustomType> unfinished) {
@@ -242,17 +271,31 @@ void CustomTypesParser::visitProg(Prog *prog) {
 }
 
 void CustomTypesParser::visitDPackage(DPackage *dpackage) {
+    
+    tempString = "";
     dpackage->packagename_->accept(this);
+    currentFQN = tempString;
+    // Remove last character of package name if it's a dot ('.')
+    if (currentFQN.at(currentFQN.length() - 1) == '.' ) {
+        currentFQN = currentFQN.substr(0, currentFQN.length()-1);
+    }
 }
 
 void CustomTypesParser::visitDInterface(DInterface *dinterface) {
+
     visitId(dinterface->id_);
     dinterface->ibody_->accept(this);
+
 }
 
 void CustomTypesParser::visitDTypeCollection(DTypeCollection *dtypecollection) {
+    tempString = "";
     visitId(dtypecollection->id_);
+    currentFQN.append("." + tempString);
+
     dtypecollection->ibody_->accept(this);
+    
+    currentFQN = currentFQN.substr(0, currentFQN.find_last_of("."));   
 }
 
 void CustomTypesParser::visitDImport(DImport *dimport) {
@@ -260,8 +303,8 @@ void CustomTypesParser::visitDImport(DImport *dimport) {
     // Note that my solution for saving namespace and file name is rather ugly.
     // Might need to implement a nicer solution (TODO) or at least make some error checking.
 
-    importedNameSpace = "";
-    importedFileName = "";
+    std::string importedNameSpace = "";
+    std::string importedFileName = "";
   
   
     // Save namespace. 
@@ -274,15 +317,15 @@ void CustomTypesParser::visitDImport(DImport *dimport) {
     dimport->filename_->accept(this);
     importedFileName = tempString;
   
-    // std::cout << "DEBUG: importedNameSpace: " << importedNameSpace << std::endl; 
-    // std::cout << "DEBUG: importedFileName: " << importedFileName << std::endl; 
+    //std::cout << "DEBUG: importedNameSpace: " << importedNameSpace << std::endl; 
+    //std::cout << "DEBUG: importedFileName: " << importedFileName << std::endl; 
   
     // Remove last character of namespace if it's a dot ('.')
     if (importedNameSpace.at(importedNameSpace.length() -1) == '.' ) {
         importedNameSpace = importedNameSpace.substr(0, importedNameSpace.length()-1);
     }
   
-    // std::cout << "DEBUG: importedNameSpace: " << importedNameSpace << std::endl; 
+    //std::cout << "DEBUG: importedNameSpace: " << importedNameSpace << std::endl; 
     // Now namespace and file name are saved, and we can open the file.
     std::string fullFilePath;
     FILE *importedFile;
@@ -325,7 +368,7 @@ void CustomTypesParser::visitDImport(DImport *dimport) {
   
     if (imported_parse_tree && importedFile) {
         CustomTypesParser *parser = new CustomTypesParser();
-        std::vector<CustomType> newUnfinishedTypes = parser->findUnfinishedTypes(imported_parse_tree, pathToImportFile);
+        std::vector<CustomType> newUnfinishedTypes = parser->findUnfinishedTypes(imported_parse_tree, pathToImportFile, importedNameSpace);
     
         unfinished.insert(unfinished.end(), newUnfinishedTypes.begin(), newUnfinishedTypes.end());
     } else {
@@ -390,6 +433,11 @@ void CustomTypesParser::visitDNamespaceID(DNamespaceID *dnamespaceid) {
     visitId(dnamespaceid->id_);
 }
 
+void CustomTypesParser::visitDNamespaceIDAll(DNamespaceIDAll *dnamespaceidall) {
+    tempString.append("*");
+}
+
+
 void CustomTypesParser::visitDIBody(DIBody *dibody) {
     dibody->listibodyitem_->accept(this);
 }
@@ -446,17 +494,24 @@ void CustomTypesParser::visitDAttribReadOnlyNoSub2(DAttribReadOnlyNoSub2 *dattri
 
 void CustomTypesParser::visitDEnumDef(DEnumDef *denumdef) {
 
+
     CustomType *ct = new CustomType();
     ct->setType(FRANCA_ENUM);
 
     tempString = "";
     visitId(denumdef->id_);
     ct->setName(tempString);
-  
+    currentFQN.append("." + tempString);
+      
     currentCT = ct;
     denumdef->enumlist_->accept(this);
-  
-    unfinished.push_back(*ct);
+    
+    if (isInNamespaceToImport(currentFQN, namespaceToImport)) {
+        unfinished.push_back(*ct);
+    }
+    
+    currentFQN = currentFQN.substr(0, currentFQN.find_last_of("."));
+    
 }
 
 void CustomTypesParser::visitDExtendedEnumDef(DExtendedEnumDef *dextendedenumdef) { 
@@ -467,6 +522,7 @@ void CustomTypesParser::visitDExtendedEnumDef(DExtendedEnumDef *dextendedenumdef
     tempString = "";
     dextendedenumdef->enumid_->accept(this);
     ct->setName(tempString);
+    currentFQN.append("." + tempString);  
   
     tempString = "";
     visitId(dextendedenumdef->id_);
@@ -475,7 +531,11 @@ void CustomTypesParser::visitDExtendedEnumDef(DExtendedEnumDef *dextendedenumdef
     currentCT = ct;
     dextendedenumdef->enumlist_->accept(this);
   
-    unfinished.push_back(*ct);
+    if (isInNamespaceToImport(currentFQN, namespaceToImport)) {
+        unfinished.push_back(*ct);
+    }
+    
+    currentFQN = currentFQN.substr(0, currentFQN.find_last_of("."));
 }
 
 void CustomTypesParser::visitDTypeDef(DTypeDef *dtypedef) {
@@ -486,12 +546,17 @@ void CustomTypesParser::visitDTypeDef(DTypeDef *dtypedef) {
     tempString = "";  
     dtypedef->typedefid_->accept(this);
     ct->setName(tempString);
+    currentFQN.append("." + tempString);        
   
     tempString = "";  
     dtypedef->type_->accept(this);
-    ct->setDBusSign(tempString);
+    ct->setDBusSign(tempString); 
   
-    unfinished.push_back(*ct);
+    if (isInNamespaceToImport(currentFQN, namespaceToImport)) {
+        unfinished.push_back(*ct);
+    }
+    
+    currentFQN = currentFQN.substr(0, currentFQN.find_last_of("."));
 }
 
 void CustomTypesParser::visitDTypeDefCustom(DTypeDefCustom *dtypedefcustom) {
@@ -502,12 +567,17 @@ void CustomTypesParser::visitDTypeDefCustom(DTypeDefCustom *dtypedefcustom) {
     tempString = "";  
     dtypedefcustom->typedefid_->accept(this);
     ct->setName(tempString);
+    currentFQN.append("." + tempString);      
   
     tempString = "";  
     visitId(dtypedefcustom->id_);
     ct->setData(tempString);
   
-    unfinished.push_back(*ct);
+    if (isInNamespaceToImport(currentFQN, namespaceToImport)) {
+        unfinished.push_back(*ct);
+    }
+    
+    currentFQN = currentFQN.substr(0, currentFQN.find_last_of("."));
 }
 
 void CustomTypesParser::visitDInVar(DInVar *dinvar) {
