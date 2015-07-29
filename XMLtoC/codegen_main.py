@@ -87,12 +87,14 @@ def codegen_main():
         stub_h = open(cpp_code + "_stub" + '.h', 'w')
         stub_cpp = open(cpp_code + "_stub" + '.c', 'w')
         stub_impl = open(cpp_code + "_stubImplementation" + '.c', 'w')
+        common_h = open(cpp_code + "_common" + '.h', 'w')
         gen = codegen.CodeGenerator(all_ifaces,
                                     opts.cpp_namespace,
                                     interface_prefix_list,
                                     node_xmls,
                                     proxy_h, proxy_cpp, proxy_impl,
-                                    stub_cpp, stub_h, stub_impl);
+                                    stub_cpp, stub_h, stub_impl,
+                                    common_h);
         ret = gen.generate()
         proxy_h.close()
         proxy_cpp.close()
@@ -100,6 +102,7 @@ def codegen_main():
         stub_h.close()
         stub_cpp.close()
         stub_impl.close()
+        common_h.close()
 
     sys.exit(0)
 

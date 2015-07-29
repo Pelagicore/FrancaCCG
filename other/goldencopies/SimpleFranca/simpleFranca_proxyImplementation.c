@@ -234,7 +234,8 @@ void debugAllMethods() {
 
 void proxy_created(GObject *obj, GAsyncResult *result, gpointer userdata) {
     proxy = FrancaccodegenVerySimpleFrancaInterface_createforBusFinish(result);
-
+    printf("DEBUG: The following proxy has been created:\n Name: %s\nObject path: %s\nInterface name: %s\n\n", g_dbus_proxy_get_name(proxy), g_dbus_proxy_get_object_path(proxy), g_dbus_proxy_get_interface_name(proxy));
+    
     // Connect to signal handler.
     FrancaccodegenVerySimpleFrancaInterface_connectToPropertiesChanged(proxy, &on_properties_changed);
     

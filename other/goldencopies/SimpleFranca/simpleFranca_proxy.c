@@ -312,7 +312,7 @@ void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_get(GDBusProxy *p
         NULL); 
 }
 
-void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_get_finish(GDBusProxy *proxy, guint32 *value, GAsyncResult *result, gboolean *success) {
+void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_get_finish(GDBusProxy *proxy, COLOR_TYPE *value, GAsyncResult *result, gboolean *success) {
    // Get result from method call from d-bus proxy
     GVariant *wrapped;
     GError *error = NULL;

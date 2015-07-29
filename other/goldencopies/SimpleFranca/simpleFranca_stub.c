@@ -249,8 +249,8 @@ void FrancaccodegenVerySimpleFrancaInterface_on_method_call(GDBusConnection *con
     } else
     if (g_strcmp0 (method_name, "getColorOfObject") == 0) 
     {
-        guint32 objectName_in0 = g_variant_get_uint32(g_variant_get_child_value(parameters, 0));
-        guint32 objectColor_out0;
+        OBJECTLIST_TYPE objectName_in0 = g_variant_get_uint32(g_variant_get_child_value(parameters, 0));
+        COLOR_TYPE objectColor_out0;
         // Call the registered method handler, if one is registered.
         if (methodsStruct.getColorOfObject__u__uHandler != NULL) {
             methodsStruct.getColorOfObject__u__uHandler(objectName_in0, &objectColor_out0);

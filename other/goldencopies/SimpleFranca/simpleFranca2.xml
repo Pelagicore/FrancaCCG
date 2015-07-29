@@ -3,7 +3,7 @@
 <node name="Francaccodegen">
    <interface name="Francaccodegen.verySimpleFrancaInterface">
       <property access="readwrite" name="anIntegerAttribute" type="u">
-         <annotation name="org.freedesktop.DBus.Property.EmitsChangedSignal" value="false"/>
+         <annotation name="com.pelagicore.FrancaCCodeGen.NoSubscriptions" value="True"/>         
       </property>
       <property access="read" name="aStringAttribute" type="s">
       </property>

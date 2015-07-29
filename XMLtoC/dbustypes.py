@@ -31,45 +31,46 @@ class Common:
             - Type for "out" parameter to generated function
             - name of glib function to fetch value from gvariant
             - extra arguments to pass to gvariant getter (i.e. ", NULL" for strings)
+            - name of glib function to create a new variant of specific type
             - specifier for c function printf (used for DEBUGGING only) 
         """
 #TODO fix this. What to keep in this code generator? Optimally, all features of dbus should be supported.
         if sig == 'b':
-            return ('gboolean', 'gboolean', 'g_variant_get_boolean', "", "i")
+            return ('gboolean', 'gboolean', 'g_variant_get_boolean', "", 'g_variant_new_boolean', "i")
         elif sig == 'y':
-            return ('guchar', 'guchar', 'g_variant_get_byte', "", "c")
+            return ('guchar', 'guchar', 'g_variant_get_byte', "", 'g_variant_new_byte', "c")
         elif sig == 'n':
-            return ('gint16', 'gint16', 'g_variant_get_int16', "", "i")
+            return ('gint16', 'gint16', 'g_variant_get_int16', "", 'g_variant_new_int16', "i")
         elif sig == 'q':
-            return ('guint16', 'guint16', 'g_variant_get_uint16', "", "u")
+            return ('guint16', 'guint16', 'g_variant_get_uint16', "", 'g_variant_new_uint16', "u")
         elif sig == 'i':
-            return ('gint32', 'gint32', 'g_variant_get_int32', "", "i")
+            return ('gint32', 'gint32', 'g_variant_get_int32', "", 'g_variant_new_int32', "i")
         elif sig == 'u':
-            return ('guint32', 'guint32', 'g_variant_get_uint32', "", "u")
+            return ('guint32', 'guint32', 'g_variant_get_uint32', "", 'g_variant_new_uint32', "u")
         elif sig == 'x':
-            return ('gint64', 'gint64', 'g_variant_get_int64', "", "i")
+            return ('gint64', 'gint64', 'g_variant_get_int64', "", 'g_variant_new_int64', "i")
         elif sig == 't':
-            return ('guint64', 'guint64', 'g_variant_get_uint64', "", "u")
+            return ('guint64', 'guint64', 'g_variant_get_uint64', "", 'g_variant_new_uint64', "u")
         elif sig == 'd':
-            return ('double', 'double', 'g_variant_get_double', "", "f")
+            return ('double', 'double', 'g_variant_get_double', "", 'g_variant_new_double', "f")
         elif sig == 's':
-            return ('const gchar *', 'const gchar *', 'g_variant_get_string', ", NULL", "s")
-        elif sig == 'o':
-            return ('std::string', 'std::string', "", "", "")
-        elif sig == 'g':
-            return ('std::string', 'std::string', "", "", "")
-        elif sig == 'ay':
-            return ('std::string', 'std::string', "", "", "")
-        elif sig == 'as':
-            return ('std::vector<std::string> ', 'std::vector<std::string>', "", "", "")
-        elif sig == 'ao':
-            return ('std::vector<std::string> ', 'std::vector<std::string>', "", "", "")
-        elif sig == 'aay':
-            return ('std::vector<std::string> ', 'std::vector<std::string>', "", "", "")
-        elif sig == 'v':
-            return ('Glib::VariantBase', 'Glib::VariantBase', '', '', '')
+            return ('const gchar *', 'const gchar *', 'g_variant_get_string', ", NULL", 'g_variant_new_string', "s")
+#        elif sig == 'o':
+#            return ('std::string', 'std::string', "", "", "")
+#        elif sig == 'g':
+#            return ('std::string', 'std::string', "", "", "")
+#        elif sig == 'ay':
+#            return ('std::string', 'std::string', "", "", "")
+#        elif sig == 'as':
+#            return ('std::vector<std::string> ', 'std::vector<std::string>', "", "", "")
+#        elif sig == 'ao':
+#            return ('std::vector<std::string> ', 'std::vector<std::string>', "", "", "")
+#        elif sig == 'aay':
+#            return ('std::vector<std::string> ', 'std::vector<std::string>', "", "", "")
+#        elif sig == 'v':
+#            return ('Glib::VariantBase', 'Glib::VariantBase', '', '', '')
         else:
-            return (None, None, None, None, None)
+            return (None, None, None, None, None, None)
 
 class Annotation:
     def __init__(self, key, value):
@@ -90,7 +91,7 @@ class Arg:
         
 
         
-        (self.ctype_in, self.ctype_out, self.g_variant_getter, self.g_variant_getter_extra_arguments, self.c_printf_specifier) = Common.cSignatureForDbusSignature(self.signature)
+        (self.ctype_in, self.ctype_out, self.g_variant_getter, self.g_variant_getter_extra_arguments, self.g_variant_constructor, self.c_printf_specifier) = Common.cSignatureForDbusSignature(self.signature)
 
 #        self.ctype_send = lambda name, param, c_class_name: "Glib::Variant<"+self.ctype_get+"> "+name+" = Glib::Variant<"+self.ctype_get+">::create(arg_"+param+");"
 #        self.cvalue_get = lambda varname, outvar, idx, c_class_name: "Glib::Variant<"+self.ctype_in+"> "+varname+";\n    wrapped.get_child("+varname+","+idx+");\n    "+outvar+" = "+varname+".get();"
@@ -125,8 +126,17 @@ class Arg:
             # default to GVariant
             self.ctype_in  = 'Glib::VariantBase'
             self.ctype_out  = 'Glib::VariantBase'
-            self.ctype_send = lambda name, param: "Glib::VariantBase "+name+" = arg_"+param+";"
-            self.cvalue_get = lambda varname, outvar, idx: "Glib::VariantBase "+varname+";\n  wrapped.get_child("+varname+","+idx+");\n  "+outvar+" = "+varname+";"
+            #self.ctype_send = lambda name, param: "Glib::VariantBase "+name+" = arg_"+param+";"
+            #self.cvalue_get = lambda varname, outvar, idx: "Glib::VariantBase "+varname+";\n  wrapped.get_child("+varname+","+idx+");\n  "+outvar+" = "+varname+";"
+        
+        
+        
+        # Set ctype to enum name, if argument is an enum
+        for a in self.annotations:
+            if a.key.startswith("com.pelagicore.FrancaCCodeGen.Enum."):
+                nameOfEnum = a.key.split(".")[4]
+                self.ctype_in = nameOfEnum + "_type"
+                self.ctype_out = nameOfEnum + "_type"
 
 class Method:
     def __init__(self, name):
@@ -168,26 +178,26 @@ class Method:
         
         for a in self.in_args:
             sigListIn.append(a.signature)
-            argList.append(a.nameWithIndex) #"input"  + str(self.in_args.index(a))
+            argList.append(a.nameWithIndex)
             inArgSig = inArgSig + a.signature
-            implSig.append(a.ctype_in + " " + a.nameWithIndex) #" varInput" + str(self.in_args.index(a))
+            implSig.append(a.ctype_in + " " + a.nameWithIndex) 
             pointerSig.append(a.ctype_in)
-            proxyHeaderInArgs.append(a.ctype_in + " arg_" + a.name) #" arg_varInput" + str(self.in_args.index(a))
-            inArgList.append("arg_" + a.name) #"arg_varInput"  + str(self.in_args.index(a)
+            proxyHeaderInArgs.append(a.ctype_in + " arg_" + a.name) 
+            inArgList.append("arg_" + a.name) 
         for a in self.out_args:
             sigListOut.append(a.signature)
-            argList.append("&" + a.nameWithIndex) #"&output" str(self.out_args.index(a))
-            outArgList.append(a.nameWithIndex) #"output" + str(self.out_args.index(a))
+            argList.append("&" + a.nameWithIndex) 
+            outArgList.append(a.nameWithIndex) 
             outArgSig = outArgSig + a.signature
-            implSig.append(a.ctype_out + " *" + a.nameWithIndex) #" *varOutput"+ str(self.out_args.index(a))
+            implSig.append(a.ctype_out + " *" + a.nameWithIndex)
             pointerSig.append(a.ctype_out + "*")
-            proxyHeaderOutArgs.append(a.ctype_out + " *out_" + a.nameWithIndex) #" *out_varOutput" + a.name + str(self.out_args.index(a))
-            proxyImplResults.append("&" + a.nameWithIndex + "_result") #"&res"
+            proxyHeaderOutArgs.append(a.ctype_out + " *out_" + a.nameWithIndex) 
+            proxyImplResults.append("&" + a.nameWithIndex + "_result") 
         
         sigStr = "__" + "_".join(sigListIn) + "__" + "_".join(sigListOut)
 
 
-        self.proxy_results_addresses = ", ".join(proxyImplResults) # res0, res1
+        self.proxy_results_addresses = ", ".join(proxyImplResults) 
         self.proxy_header_inarg_string = ", ".join(proxyHeaderInArgs) # gint16 arg_varInput0, gint16 arg_varInput1
         self.proxy_header_outarg_string = ", ".join(proxyHeaderOutArgs) # gint32 *arg_varOutput0
         self.pointer_signature = ", ".join(pointerSig) # gint16, gint16, gint32*
@@ -246,14 +256,14 @@ class Property:
         else:
             raise RuntimeError('Invalid access type %s'%self.access)
 
-        (self.cpptype_in, self.cpptype_out, self.cpptype_get, self.cpptype_get_cast, self.cpptype_to_dbus) = Common.cSignatureForDbusSignature(signature)
-
-        if (self.cpptype_in, self.cpptype_out) == (None, None):
+# (self.cpptype_in, self.cpptype_out, self.cpptype_get, self.cpptype_get_cast, self.cpptype_to_dbus)
+        (self.ctype_in, self.ctype_out, self.g_variant_getter, self.g_variant_getter_extra_arguments, self.g_variant_constructor, self.c_printf_specifier) = Common.cSignatureForDbusSignature(signature)
+        if (self.ctype_in, self.ctype_out) == (None, None):
             print "Unknown signature: " + self.signature
 
             # default to GVariant
-            self.cpptype_in  = 'const Glib::VariantBase &'
-            self.cpptype_out  = 'Glib::VariantBase'
+            self.ctype_in  = 'const Glib::VariantBase &'
+            self.ctype_out  = 'Glib::VariantBase'
 
     def post_process(self, interface_prefix, cns, cns_upper, cns_lower):
         name = self.name
@@ -262,10 +272,25 @@ class Property:
         # don't clash with the GType getter, e.g.: GType foo_bar_get_type (void); G_GNUC_CONST
         if self.name_lower == 'type':
             self.name_lower = 'type_'
+            
+        self.camel_name_with_dbus_signature = self.name + "_" + self.signature
+        self.noSubscriptions = False
+        
+        # Handle annotations
+        # Set ctype to enum name, if property is an enum
+        for a in self.annotations:
+            if a.key.startswith("com.pelagicore.FrancaCCodeGen.Enum."):
+                nameOfEnum = a.key.split(".")[4]
+                self.ctype_in = nameOfEnum + "_type"
+                self.ctype_out = nameOfEnum + "_type"
+            if a.key.startswith("com.pelagicore.FrancaCCodeGen.NoSubscriptions"):
+                if a.value == "True" or a.value == "TRUE" or a.value == "true":
+                    self.noSubscriptions = True
 
-        # recalculate arg
-        self.arg.annotations = self.annotations
-        self.arg.post_process(0, "")
+                
+        # recalculate arg #?? TODO
+        #self.arg.annotations = self.annotations 
+        #self.arg.post_process(0, "")
 
 class Interface:
     def __init__(self, name):

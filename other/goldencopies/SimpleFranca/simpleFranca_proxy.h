@@ -32,4 +32,4 @@ void FrancaccodegenVerySimpleFrancaInterface_aStringAttribute_s_get_finish(GDBus
 void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_set(GDBusProxy *proxy, COLOR_TYPE value, const GAsyncReadyCallback callback);
 void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_set_finish(GDBusProxy *proxy, GAsyncResult *result, gboolean *success);
 void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_get(GDBusProxy *proxy, const GAsyncReadyCallback callback);
-void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_get_finish(GDBusProxy *proxy, guint32 *value, GAsyncResult *result, gboolean *success);
+void FrancaccodegenVerySimpleFrancaInterface_anEnumAttribute_u_get_finish(GDBusProxy *proxy, COLOR_TYPE *value, GAsyncResult *result, gboolean *success);
