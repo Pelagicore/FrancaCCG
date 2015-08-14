@@ -1,0 +1,3 @@
+Error opening fidl file from import statement: MediaType.fidl
+ERROR: FIDLtoXML code generator failed. Code generation aborted.
+

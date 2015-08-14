@@ -1,0 +1,5 @@
+
+FIDLtoXML successfully finished generating D-Bus XML Introspection for Franca IDL file ../testsuite/OriginalFiles/MediaIndexer.fidl
+XMLtoC successfully finished generating C server proxy and stub for D-Bus XML file testsuite/OriginalFiles/MediaIndexer.xml
+Code generation for Franca IDL file testsuite/OriginalFiles/MediaIndexer.fidl was successful.
+

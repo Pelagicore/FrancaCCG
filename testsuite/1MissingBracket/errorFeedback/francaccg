@@ -1,0 +1,6 @@
+error: parse error
+Syntax error at line 17:
+       out { IndexerError e }
+Aborting code generation.
+ERROR: FIDLtoXML code generator failed. Code generation aborted.
+

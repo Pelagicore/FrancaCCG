@@ -1,0 +1,21 @@
+ERROR: Custom Franca types cannot be resolved: 
+NAME: BackendError
+TYPE: ENUMERATION
+D-BUS SIGNATURE: 
+EXTENDS: MediaManagerError
+ENUM MEMBER: BACKEND_UNREACHABLE = 
+
+NAME: MediaManagerError
+TYPE: ENUMERATION
+D-BUS SIGNATURE: 
+EXTENDS: BackendError
+ENUM MEMBER: NO_ERROR = 
+
+NAME: IndexerError
+TYPE: TYPEDEF
+D-BUS SIGNATURE: 
+VALUE: BackendError
+
+Aborting code generation.
+ERROR: FIDLtoXML code generator failed. Code generation aborted.
+

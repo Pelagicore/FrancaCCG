@@ -10,7 +10,6 @@ clean:
 
 distclean:
 	 rm -f *.o Absyn.C Absyn.H Test.C Parser.C Parser.H Lexer.C Skeleton.C Skeleton.H Printer.C Printer.H franca.l franca.y franca.tex franca.dvi franca.aux franca.log franca.ps RunFCCG 
-	 rm -f fidl/*.xml
 	 rm -f *.bak
 
 bnfc:	

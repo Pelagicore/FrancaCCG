@@ -1,0 +1,6 @@
+error: parse error
+Syntax error at line 14:
+       out {
+Aborting code generation.
+ERROR: FIDLtoXML code generator failed. Code generation aborted.
+

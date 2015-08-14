@@ -91,14 +91,14 @@ int main(int argc, char ** argv)
         g2->createCustomTypesList(parse_tree, pathToImportFile);
         output << g2->generate(parse_tree, pathToImportFile);
         output.close();
-        std::cout << "Finished generating D-Bus XML Introspection to file " << outputFilename << ". File content: " << std::endl << std::endl;
+        std::cout << "FIDLtoXML successfully finished generating D-Bus XML Introspection for Franca IDL file " << argv[1] << std::endl;
     
         // Print generated file
-        std::ifstream generatedFile(outputFilename.c_str());
-        std::string templine;
-        while (getline(generatedFile, templine)) {
-            std::cout << templine << std::endl;
-        }
+        //std::ifstream generatedFile(outputFilename.c_str());
+        //std::string templine;
+        //while (getline(generatedFile, templine)) {
+        //    std::cout << templine << std::endl;
+        //}
     } else {
   
         // If there are parse errors, find the line number of the parse error and print that line
@@ -119,13 +119,13 @@ int main(int argc, char ** argv)
                     std::getline(theFidlFile, currentLine);
                     if (i == lineNbr - 1) {
                         // Print the content of line number of parse error
-                        std::cout << "Error parsing file " << argv[1] << " at line " << lineNbr << ":" << std::endl << currentLine << std::endl;
+                        std::cerr << "Syntax error at line " << lineNbr << ":" << std::endl << currentLine << std::endl;
                     }
                 }
                 theFidlFile.close();
             }
         }
-        std::cout << "Aborting code generation." << std::endl;
+        std::cerr << "Aborting code generation." << std::endl;
         return 1;
     }
   

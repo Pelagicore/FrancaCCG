@@ -1,0 +1,18 @@
+Loading main class : org.genivi.commonapi.cmdline.StandaloneGen
+Sat Aug 08 14:08:34 CEST 2015 - [main] Product-specified preferences called before plugin is started
+0    INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/3FileStructuredWrong/output_commonapi/org/genivi/mediamanager/IndexerDBusProxy.h
+3    INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/3FileStructuredWrong/output_commonapi/org/genivi/mediamanager/IndexerDBusProxy.cpp
+4    INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/3FileStructuredWrong/output_commonapi/org/genivi/mediamanager/IndexerDBusStubAdapter.h
+17   INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/3FileStructuredWrong/output_commonapi/org/genivi/mediamanager/IndexerDBusStubAdapter.cpp
+48   INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/3FileStructuredWrong/output_commonapi/org/genivi/mediamanager/MediaTypes.h
+50   INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/3FileStructuredWrong/output_commonapi/org/genivi/mediamanager/Indexer.h
+55   INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/3FileStructuredWrong/output_commonapi/org/genivi/mediamanager/Indexer.h
+56   INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/3FileStructuredWrong/output_commonapi/org/genivi/mediamanager/Indexer.cpp
+62   INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/3FileStructuredWrong/output_commonapi/org/genivi/mediamanager/IndexerProxyBase.h
+63   INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/3FileStructuredWrong/output_commonapi/org/genivi/mediamanager/IndexerProxy.h
+65   INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/3FileStructuredWrong/output_commonapi/org/genivi/mediamanager/IndexerStub.h
+67   INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/3FileStructuredWrong/output_commonapi/org/genivi/mediamanager/IndexerStubDefault.h
+67   INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/3FileStructuredWrong/output_commonapi/org/genivi/mediamanager/IndexerStubDefault.cpp
+68   INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/3FileStructuredWrong/output_commonapi/org/genivi/mediamanager/IndexerServiceAbstract.h
+68   INFO  StandaloneGen      - FrancaStandaloneGen done.
+

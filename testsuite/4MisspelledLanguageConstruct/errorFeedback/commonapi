@@ -1,0 +1,41 @@
+Loading main class : org.genivi.commonapi.cmdline.StandaloneGen
+Sat Aug 08 14:12:44 CEST 2015 - [main] Product-specified preferences called before plugin is started
+1    INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/4MisspelledLanguageConstruct/output_commonapi/org/genivi/mediamanager/IndexerDBusProxy.h
+18   ERROR StandaloneGen      - Exception occurred !
+java.lang.NullPointerException
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGeneratorExtensions.dbusSignature(FrancaDBusGeneratorExtensions.java:150)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGeneratorExtensions._dbusFTypeSignature(FrancaDBusGeneratorExtensions.java:167)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGeneratorExtensions.dbusFTypeSignature(FrancaDBusGeneratorExtensions.java:360)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGeneratorExtensions.dbusSignature(FrancaDBusGeneratorExtensions.java:154)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGeneratorExtensions.getTypeDbusSignature(FrancaDBusGeneratorExtensions.java:145)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGeneratorExtensions.dbusSignature(FrancaDBusGeneratorExtensions.java:119)
+	at org.genivi.commonapi.dbus.generator.FInterfaceDBusProxyGenerator.generateDBusVariableInit(FInterfaceDBusProxyGenerator.java:972)
+	at org.genivi.commonapi.dbus.generator.FInterfaceDBusProxyGenerator.generateDBusProxySource(FInterfaceDBusProxyGenerator.java:481)
+	at org.genivi.commonapi.dbus.generator.FInterfaceDBusProxyGenerator.generateDBusProxy(FInterfaceDBusProxyGenerator.java:57)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGenerator$1.apply(FrancaDBusGenerator.java:246)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGenerator$1.apply(FrancaDBusGenerator.java:1)
+	at org.eclipse.xtext.xbase.lib.IterableExtensions.forEach(IterableExtensions.java:399)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGenerator.doGenerateDBusComponents(FrancaDBusGenerator.java:308)
+	at org.genivi.commonapi.dbus.Generator.generate(Generator.java:21)
+	at org.genivi.commonapi.cmdline.StandaloneGen.run(StandaloneGen.java:299)
+	at org.genivi.commonapi.cmdline.StandaloneGen.go(StandaloneGen.java:82)
+	at org.genivi.commonapi.cmdline.main.Main.main(Main.java:80)
+java.lang.NullPointerException
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGeneratorExtensions.dbusSignature(FrancaDBusGeneratorExtensions.java:150)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGeneratorExtensions._dbusFTypeSignature(FrancaDBusGeneratorExtensions.java:167)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGeneratorExtensions.dbusFTypeSignature(FrancaDBusGeneratorExtensions.java:360)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGeneratorExtensions.dbusSignature(FrancaDBusGeneratorExtensions.java:154)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGeneratorExtensions.getTypeDbusSignature(FrancaDBusGeneratorExtensions.java:145)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGeneratorExtensions.dbusSignature(FrancaDBusGeneratorExtensions.java:119)
+	at org.genivi.commonapi.dbus.generator.FInterfaceDBusProxyGenerator.generateDBusVariableInit(FInterfaceDBusProxyGenerator.java:972)
+	at org.genivi.commonapi.dbus.generator.FInterfaceDBusProxyGenerator.generateDBusProxySource(FInterfaceDBusProxyGenerator.java:481)
+	at org.genivi.commonapi.dbus.generator.FInterfaceDBusProxyGenerator.generateDBusProxy(FInterfaceDBusProxyGenerator.java:57)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGenerator$1.apply(FrancaDBusGenerator.java:246)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGenerator$1.apply(FrancaDBusGenerator.java:1)
+	at org.eclipse.xtext.xbase.lib.IterableExtensions.forEach(IterableExtensions.java:399)
+	at org.genivi.commonapi.dbus.generator.FrancaDBusGenerator.doGenerateDBusComponents(FrancaDBusGenerator.java:308)
+	at org.genivi.commonapi.dbus.Generator.generate(Generator.java:21)
+	at org.genivi.commonapi.cmdline.StandaloneGen.run(StandaloneGen.java:299)
+	at org.genivi.commonapi.cmdline.StandaloneGen.go(StandaloneGen.java:82)
+	at org.genivi.commonapi.cmdline.main.Main.main(Main.java:80)
+

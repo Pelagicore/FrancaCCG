@@ -1,0 +1,6 @@
+package org.genivi.mediamanager
+typeCollection MediaTypes {
+   enumeration BackendError extends MediaManagerError { BACKEND_UNREACHABLE }
+   enumeration MediaManagerError extends BackendError{ NO_ERROR }
+}
+

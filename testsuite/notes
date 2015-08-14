@@ -1,0 +1,28 @@
+Notes about test suite:
+
+8NoVersionDefined - I should really add this check to my code generators, even though I do not actually use the version. Best thing to do would probably be to set boolean to true if version is found, and then check in the end if boolean is true. If false, abort and give error, or just warning!
+
+
+
+
+"Good" feedback:
+Error       FrancaCCG       CommonAPI
+1           Yes             No   
+2           Yes             Yes   
+3           Not Found       Not Found, fails quietly! (reports OK but faulty files generated)         
+4           Yes             No   
+5           Yes             No   
+6           Yes (weak)      Yes (weaker)          
+7           Yes             No    
+8           Not Found       No         
+
+
+@3: By moving the type definition of "IndexerError" to the beginning of the file, all references to it are removed from the generated file. A method with only one out parameter, it being IndexerError, will be generated as a method without out parameters.
+
+@3: "Not Found" not critical as long as the code generated is equal to the code generated from an OK file. However, code generators should still give a warning, since a file structured wrong will not work on other code generators (such as CommonAPI).
+
+
+
+
+
+

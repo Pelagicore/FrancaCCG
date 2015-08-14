@@ -122,7 +122,7 @@ std::string GenerateDBusXML::getCustomTypeSig(std::string name) {
         }
     }
     // If name of custom type is not found, it has not been defined. Exit code generation.
-    std::cout << "ERROR: Custom Franca type '" << name << "' has not been defined." << std::endl << "Aborting code generation." << std::endl;
+    std::cerr << "ERROR: Custom Franca type '" << name << "' has not been defined." << std::endl << "Aborting code generation." << std::endl;
     exit(1);
     return "";
 }
@@ -936,7 +936,7 @@ void GenerateDBusXML::visitDUIntEight(DUIntEight* p) {
 
 void GenerateDBusXML::visitDIntEight(DIntEight* p) {
 
-    std::cout << "ERROR: Franca type 'Int8' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
+    std::cerr << "ERROR: Franca type 'Int8' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
     exit(1);
 }
 
@@ -977,7 +977,7 @@ void GenerateDBusXML::visitDBoolean(DBoolean* p) {
 
 
 void GenerateDBusXML::visitDFloat(DFloat* p) {
-    std::cout << "ERROR: Franca type 'Float' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
+    std::cerr << "ERROR: Franca type 'Float' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
     exit(1);
 }
 
@@ -993,7 +993,7 @@ void GenerateDBusXML::visitDString(DString* p) {
 
 
 void GenerateDBusXML::visitDByteBuffer(DByteBuffer* p) {
-    std::cout << "ERROR: Franca type 'ByteBuffer' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
+    std::cerr << "ERROR: Franca type 'ByteBuffer' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
     exit(1);
 }
 

@@ -1,0 +1,4 @@
+ERROR: Custom Franca type 'IndexError' has not been defined.
+Aborting code generation.
+ERROR: FIDLtoXML code generator failed. Code generation aborted.
+

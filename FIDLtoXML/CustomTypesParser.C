@@ -42,13 +42,13 @@ std::vector<CustomType> CustomTypesParser::findUnfinishedTypes(Visitable *v, std
 }
 
 bool CustomTypesParser::isInNamespaceToImport(std::string fqn, std::string ns) {
-    std::cout << "DEBUG: In isInNamespaceToImport. fqn: " << fqn << ", ns: " << ns << std::endl;
+    //std::cout << "DEBUG: In isInNamespaceToImport. fqn: " << fqn << ", ns: " << ns << std::endl;
     if (ns.compare("*") == 0) {
-        std::cout << "DEBUG: Added " << fqn.substr(fqn.rfind(".") + 1, fqn.length()) << " (because ns = *)" << std::endl;
+        //std::cout << "DEBUG: Added " << fqn.substr(fqn.rfind(".") + 1, fqn.length()) << " (because ns = *)" << std::endl;
         return true;
     } else if (fqn.compare(ns) == 0) {
         // namespaceToImport specifies this particular object. Import it.
-        std::cout << "DEBUG: Added " << fqn.substr(fqn.rfind(".") + 1, fqn.length()) << " (because namespaceToImport == FQN)" << std::endl;
+        //std::cout << "DEBUG: Added " << fqn.substr(fqn.rfind(".") + 1, fqn.length()) << " (because namespaceToImport == FQN)" << std::endl;
         return true;
         
     } else if (ns.rfind(".*") != std::string::npos) {
@@ -57,14 +57,14 @@ bool CustomTypesParser::isInNamespaceToImport(std::string fqn, std::string ns) {
         // need to check this FQN begins with part of namespace before .*
         if (fqn.find(ns.substr(0, ns.rfind(".*"))) == 0) {
             // FQN and namespaceToImport indicated this element should be imported.
-            std::cout << "DEBUG: Added " << fqn.substr(fqn.rfind(".") + 1, fqn.length()) << " (because FQN in .* of namespaceToImport)" << std::endl;
+            //std::cout << "DEBUG: Added " << fqn.substr(fqn.rfind(".") + 1, fqn.length()) << " (because FQN in .* of namespaceToImport)" << std::endl;
             return true;
         } else {
-            std::cout << "DEBUG: Did NOT add " << fqn.substr(fqn.rfind("."), fqn.length()) << " (because NOT in .* of namespaceToImport)" << std::endl;
+            //std::cout << "DEBUG: Did NOT add " << fqn.substr(fqn.rfind("."), fqn.length()) << " (because NOT in .* of namespaceToImport)" << std::endl;
             return false;
         }
     }
-    std::cout << "DEBUG: Did NOT add " << fqn.substr(fqn.rfind("."), fqn.length()) << " (because namespaceToImport != FQN)" << std::endl;
+    //std::cout << "DEBUG: Did NOT add " << fqn.substr(fqn.rfind("."), fqn.length()) << " (because namespaceToImport != FQN)" << std::endl;
     return false;
 }
 
@@ -177,20 +177,20 @@ std::vector<CustomType> CustomTypesParser::parseUnfinishedList(std::vector<Custo
     
     // If there are any unfinished types left, print an error message and exit.
     if (unfinished.size() > 0) {
-        std::cout << "ERROR: Custom Franca types cannot be resolved: " << std::endl;
+        std::cerr << "ERROR: Custom Franca types cannot be resolved: " << std::endl;
         for (std::vector<CustomType>::iterator it = unfinished.begin(); it != unfinished.end(); ++it) {
-            std::cout << "NAME: " << it->getName() << std::endl << "TYPE: " << it->getTypeString() << std::endl << "D-BUS SIGNATURE: " << it->getDBusSign() << std::endl;
+            std::cerr << "NAME: " << it->getName() << std::endl << "TYPE: " << it->getTypeString() << std::endl << "D-BUS SIGNATURE: " << it->getDBusSign() << std::endl;
             if (it->getType() == FRANCA_ENUM) {
-                std::cout << "EXTENDS: " << it->getEnumExtends() << std::endl;
+                std::cerr << "EXTENDS: " << it->getEnumExtends() << std::endl;
                 for (int i = 0; i != it->getNbrOfEnumMembers(); i++) {
-                    std::cout << "ENUM MEMBER: " << it->getEnumMember(i) << " = " << it->getEnumValue(i) << std::endl;
+                    std::cerr << "ENUM MEMBER: " << it->getEnumMember(i) << " = " << it->getEnumValue(i) << std::endl;
                 }        
             } else {
-                std::cout << "VALUE: " << it->getData() << std::endl;
+                std::cerr << "VALUE: " << it->getData() << std::endl;
             }
-            std::cout << std::endl;
+            std::cerr << std::endl;
         } 
-        std::cout << "Aborting code generation." << std::endl;
+        std::cerr << "Aborting code generation." << std::endl;
         exit(1);
     }
        
@@ -339,7 +339,7 @@ void CustomTypesParser::visitDImport(DImport *dimport) {
     }
   
     if (!importedFile) {
-        std::cout << "Error importing fidl file from import statement: " << importedFileName << std::endl;
+        std::cerr << "Error opening fidl file from import statement: " << importedFileName << std::endl;
         exit(1);
     }
   
@@ -391,13 +391,13 @@ void CustomTypesParser::visitDImport(DImport *dimport) {
                     std::getline(theFidlFile, currentLine);
                     if (i == lineNbr - 1) {
                         // Print the content of line number of parse error
-                        std::cout << "Error parsing file " << fullFilePath << " at line " << lineNbr << ":" << std::endl << currentLine << std::endl;
+                        std::cerr << "Error parsing file " << fullFilePath << " at line " << lineNbr << ":" << std::endl << currentLine << std::endl;
                     }
                 }
                 theFidlFile.close();
             }
 
-            std::cout << "Error parsing imported fidl file: " << importedFileName << std::endl;
+            std::cerr << "Error parsing imported fidl file: " << importedFileName << std::endl;
         }
     }
     fclose(importedFile);
@@ -630,7 +630,7 @@ void CustomTypesParser::visitDUIntEight(DUIntEight *duinteight) {
 }
 
 void CustomTypesParser::visitDIntEight(DIntEight *dinteight) {
-    std::cout << "ERROR: Franca type 'Int8' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
+    std::cerr << "ERROR: Franca type 'Int8' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
     exit(1);
 }
 
@@ -663,7 +663,7 @@ void CustomTypesParser::visitDBoolean(DBoolean *dboolean) {
 }
 
 void CustomTypesParser::visitDFloat(DFloat *dfloat) {
-    std::cout << "ERROR: Franca type 'Float' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
+    std::cerr << "ERROR: Franca type 'Float' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
     exit(1);
 }
 
@@ -676,7 +676,7 @@ void CustomTypesParser::visitDString(DString *dstring) {
 }
 
 void CustomTypesParser::visitDByteBuffer(DByteBuffer *dbytebuffer) {
-    std::cout << "ERROR: Franca type 'ByteBuffer' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
+    std::cerr << "ERROR: Franca type 'ByteBuffer' is not defined in D-Bus." << std::endl << "Aborting code generation." << std::endl;
     exit(1);
 }
 

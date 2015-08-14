@@ -1,0 +1,30 @@
+package org.genivi.mediamanager
+import org.genivi.mediamanager.MediaTypes.* from "MediaTypes.fidl"
+interface Indexer {
+   version {
+       major 1
+       minor 0
+   }
+   <** @description: Example comment**>
+   attribute IndexerStatus indexerStatus readonly noSubscriptions
+   nethod getDatabasePath {
+       out {
+           String output
+           IndexerError e
+       }
+   }
+   method stopIndexing {
+       out { IndexerError e }
+   }
+   
+   method startIndexing {
+       out { IndexerError e }
+   }
+   enumeration IndexerStatus {
+       RUNNING
+       STOPPED
+       IDLE
+   }
+   typedef IndexerError is BackendError
+}
+

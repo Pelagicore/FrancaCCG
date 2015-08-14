@@ -1,0 +1,78 @@
+jesper@jesper-debian:~/Documents/francaccodegen/testsuite/OriginalFiles$ diff -rq output_commonapi/ 3/output_commonapi/
+Files output_commonapi/org/genivi/mediamanager/IndexerDBusProxy.cpp and 3/output_commonapi/org/genivi/mediamanager/IndexerDBusProxy.cpp differ
+Files output_commonapi/org/genivi/mediamanager/IndexerDBusProxy.h and 3/output_commonapi/org/genivi/mediamanager/IndexerDBusProxy.h differ
+Files output_commonapi/org/genivi/mediamanager/IndexerDBusStubAdapter.cpp and 3/output_commonapi/org/genivi/mediamanager/IndexerDBusStubAdapter.cpp differ
+Files output_commonapi/org/genivi/mediamanager/IndexerDBusStubAdapter.h and 3/output_commonapi/org/genivi/mediamanager/IndexerDBusStubAdapter.h differ
+Files output_commonapi/org/genivi/mediamanager/Indexer.h and 3/output_commonapi/org/genivi/mediamanager/Indexer.h differ
+Files output_commonapi/org/genivi/mediamanager/IndexerProxyBase.h and 3/output_commonapi/org/genivi/mediamanager/IndexerProxyBase.h differ
+Files output_commonapi/org/genivi/mediamanager/IndexerProxy.h and 3/output_commonapi/org/genivi/mediamanager/IndexerProxy.h differ
+Files output_commonapi/org/genivi/mediamanager/IndexerServiceAbstract.h and 3/output_commonapi/org/genivi/mediamanager/IndexerServiceAbstract.h differ
+Files output_commonapi/org/genivi/mediamanager/IndexerStubDefault.cpp and 3/output_commonapi/org/genivi/mediamanager/IndexerStubDefault.cpp differ
+Files output_commonapi/org/genivi/mediamanager/IndexerStubDefault.h and 3/output_commonapi/org/genivi/mediamanager/IndexerStubDefault.h differ
+Files output_commonapi/org/genivi/mediamanager/IndexerStub.h and 3/output_commonapi/org/genivi/mediamanager/IndexerStub.h differ
+
+
+
+
+
+
+jesper@jesper-debian:~/Documents/francaccodegen/testsuite/OriginalFiles/output_commonapi/org/genivi/mediamanager$ colordiff IndexerDBusProxy.cpp IndexerDBusProxyCopy.cpp
+37d36
+< ,indexerStatus_(*this, "u", "getIndexerStatusAttribute")
+41,43d39
+< IndexerDBusProxy::IndexerStatusAttribute& IndexerDBusProxy::getIndexerStatusAttribute() {
+<     return indexerStatus_;
+< }
+46,96d41
+< void IndexerDBusProxy::getDatabasePath(CommonAPI::CallStatus& callStatus, std::string& output, Indexer::IndexerError& e) {
+<     CommonAPI::DBus::DBusProxyHelper<CommonAPI::DBus::DBusSerializableArguments<>,
+<                                      CommonAPI::DBus::DBusSerializableArguments<std::string, Indexer::IndexerError> >::callMethodWithReply(
+<         *this,
+<         "getDatabasePath",
+<         "",
+<         callStatus
+<         , output, e);
+< }
+< std::future<CommonAPI::CallStatus> IndexerDBusProxy::getDatabasePathAsync(GetDatabasePathAsyncCallback callback) {
+<     return CommonAPI::DBus::DBusProxyHelper<CommonAPI::DBus::DBusSerializableArguments<>,
+<                                      CommonAPI::DBus::DBusSerializableArguments<std::string, Indexer::IndexerError> >::callMethodAsync(
+<         *this,
+<         "getDatabasePath",
+<         "",
+<         std::move(callback));
+< }
+< void IndexerDBusProxy::stopIndexing(CommonAPI::CallStatus& callStatus, Indexer::IndexerError& e) {
+<     CommonAPI::DBus::DBusProxyHelper<CommonAPI::DBus::DBusSerializableArguments<>,
+<                                      CommonAPI::DBus::DBusSerializableArguments<Indexer::IndexerError> >::callMethodWithReply(
+<         *this,
+<         "stopIndexing",
+<         "",
+<         callStatus
+<         , e);
+< }
+< std::future<CommonAPI::CallStatus> IndexerDBusProxy::stopIndexingAsync(StopIndexingAsyncCallback callback) {
+<     return CommonAPI::DBus::DBusProxyHelper<CommonAPI::DBus::DBusSerializableArguments<>,
+<                                      CommonAPI::DBus::DBusSerializableArguments<Indexer::IndexerError> >::callMethodAsync(
+<         *this,
+<         "stopIndexing",
+<         "",
+<         std::move(callback));
+< }
+< void IndexerDBusProxy::startIndexing(CommonAPI::CallStatus& callStatus, Indexer::IndexerError& e) {
+<     CommonAPI::DBus::DBusProxyHelper<CommonAPI::DBus::DBusSerializableArguments<>,
+<                                      CommonAPI::DBus::DBusSerializableArguments<Indexer::IndexerError> >::callMethodWithReply(
+<         *this,
+<         "startIndexing",
+<         "",
+<         callStatus
+<         , e);
+< }
+< std::future<CommonAPI::CallStatus> IndexerDBusProxy::startIndexingAsync(StartIndexingAsyncCallback callback) {
+<     return CommonAPI::DBus::DBusProxyHelper<CommonAPI::DBus::DBusSerializableArguments<>,
+<                                      CommonAPI::DBus::DBusSerializableArguments<Indexer::IndexerError> >::callMethodAsync(
+<         *this,
+<         "startIndexing",
+<         "",
+<         std::move(callback));
+< }
+

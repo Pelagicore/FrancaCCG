@@ -1,0 +1,7 @@
+
+
+import "classpath:/deployment/DBusSpecification.fdepl"
+
+import "MediaIndexer.fidl"
+
+define org.genivi.commonapi.dbus.deployment.deployment for interface org.genivi.mediamanager.Indexer {}

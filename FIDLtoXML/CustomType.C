@@ -36,7 +36,7 @@ std::string CustomType::getEnumMember(int i) {
     if (i <= enum_members.size()) {
         return this->enum_members.at(i);
     } else {
-        std::cout << "RUNTIME ERROR: Code generator couldn't fetch enum member #" << i << " from enum type "<< this->name << std::endl << "Aborting code generation." << std::endl;
+        std::cerr << "RUNTIME ERROR: Code generator couldn't fetch enum member #" << i << " from enum type "<< this->name << std::endl << "Aborting code generation." << std::endl;
         exit(1);      
     }
 }
@@ -45,7 +45,7 @@ std::string CustomType::getEnumValue(int i) {
     if (i <= enum_values.size()) {
         return this->enum_values.at(i);
     } else {
-        std::cout << "RUNTIME ERROR: Code generator couldn't fetch enum value #" << i << " from enum type "<< this->name << std::endl << "Aborting code generation." << std::endl;
+        std::cerr << "RUNTIME ERROR: Code generator couldn't fetch enum value #" << i << " from enum type "<< this->name << std::endl << "Aborting code generation." << std::endl;
         exit(1);
     }
 }

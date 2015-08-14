@@ -1,0 +1,36 @@
+Loading main class : org.genivi.commonapi.cmdline.StandaloneGen
+Sat Aug 08 14:17:04 CEST 2015 - [main] Product-specified preferences called before plugin is started
+1    INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/6ExtensionLoop/output_commonapi/org/genivi/mediamanager/IndexerDBusProxy.h
+12   INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/6ExtensionLoop/output_commonapi/org/genivi/mediamanager/IndexerDBusProxy.cpp
+15   INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/6ExtensionLoop/output_commonapi/org/genivi/mediamanager/IndexerDBusStubAdapter.h
+21   INFO  StandaloneGen$1    - Writing file /home/jesper/Documents/francaccodegen/testsuite/6ExtensionLoop/output_commonapi/org/genivi/mediamanager/IndexerDBusStubAdapter.cpp
+36   ERROR StandaloneGen      - Exception occurred !
+java.lang.IllegalArgumentException: FTypeCollection or FInterface has circular dependencies: org.franca.core.franca.impl.FTypeCollectionImpl@1dfd9611 (name: MediaTypes)
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:92)
+	at org.genivi.commonapi.core.generator.FTypeGenerator.sortTypes(FTypeGenerator.java:453)
+	at org.genivi.commonapi.core.generator.FTypeGenerator.generateFTypeDeclarations(FTypeGenerator.java:411)
+	at org.genivi.commonapi.core.generator.FTypeCollectionGenerator.generateHeader(FTypeCollectionGenerator.java:132)
+	at org.genivi.commonapi.core.generator.FTypeCollectionGenerator.generate(FTypeCollectionGenerator.java:53)
+	at org.genivi.commonapi.core.generator.FrancaGenerator$5.apply(FrancaGenerator.java:261)
+	at org.genivi.commonapi.core.generator.FrancaGenerator$5.apply(FrancaGenerator.java:1)
+	at org.eclipse.xtext.xbase.lib.IterableExtensions.forEach(IterableExtensions.java:399)
+	at org.genivi.commonapi.core.generator.FrancaGenerator.doGenerateComponents(FrancaGenerator.java:264)
+	at org.genivi.commonapi.core.Generator.generate(Generator.java:21)
+	at org.genivi.commonapi.cmdline.StandaloneGen.run(StandaloneGen.java:299)
+	at org.genivi.commonapi.cmdline.StandaloneGen.go(StandaloneGen.java:82)
+	at org.genivi.commonapi.cmdline.main.Main.main(Main.java:80)
+java.lang.IllegalArgumentException: FTypeCollection or FInterface has circular dependencies: org.franca.core.franca.impl.FTypeCollectionImpl@1dfd9611 (name: MediaTypes)
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:92)
+	at org.genivi.commonapi.core.generator.FTypeGenerator.sortTypes(FTypeGenerator.java:453)
+	at org.genivi.commonapi.core.generator.FTypeGenerator.generateFTypeDeclarations(FTypeGenerator.java:411)
+	at org.genivi.commonapi.core.generator.FTypeCollectionGenerator.generateHeader(FTypeCollectionGenerator.java:132)
+	at org.genivi.commonapi.core.generator.FTypeCollectionGenerator.generate(FTypeCollectionGenerator.java:53)
+	at org.genivi.commonapi.core.generator.FrancaGenerator$5.apply(FrancaGenerator.java:261)
+	at org.genivi.commonapi.core.generator.FrancaGenerator$5.apply(FrancaGenerator.java:1)
+	at org.eclipse.xtext.xbase.lib.IterableExtensions.forEach(IterableExtensions.java:399)
+	at org.genivi.commonapi.core.generator.FrancaGenerator.doGenerateComponents(FrancaGenerator.java:264)
+	at org.genivi.commonapi.core.Generator.generate(Generator.java:21)
+	at org.genivi.commonapi.cmdline.StandaloneGen.run(StandaloneGen.java:299)
+	at org.genivi.commonapi.cmdline.StandaloneGen.go(StandaloneGen.java:82)
+	at org.genivi.commonapi.cmdline.main.Main.main(Main.java:80)
+

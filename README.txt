@@ -1,6 +1,7 @@
 TEMP README
 
-Use ./run.sh to generate stub and proxy for simpleFranca/simpleFranca.fidl.
+Use ./run.sh <path to fidl file> to generate stub and proxy fidl file given.
+Only usable with simpleFranca at the moment (?)
 Not usable with other Franca files at the moment (will get C compile errors with other files due to debug code)
 
 Use ./cleanup.sh to return to pre-"run.sh" state.
