@@ -9,8 +9,8 @@
 #include <sstream>
 #include "Parser.H"
 #include "Absyn.H"
-#include "XMLGenerator.H"
-#include "CustomTypesParser.H"
+#include "XMLGenerator.h"
+#include "CustomTypesParser.h"
 
 
 int main(int argc, char ** argv)

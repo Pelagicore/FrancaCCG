@@ -2,7 +2,7 @@
  * Based on BNFC-generated pretty printer
  ***/
 
-#include "XMLGenerator.H"
+#include "XMLGenerator.h"
 
 #include <iostream>
 

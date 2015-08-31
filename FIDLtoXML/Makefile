@@ -40,15 +40,15 @@ Printer.o: Printer.C Printer.H Absyn.H
 Skeleton.o: Skeleton.C Skeleton.H Absyn.H
 	${CC} ${CCFLAGS} -c Skeleton.C
 	
-CustomTypesParser.o: CustomTypesParser.C CustomType.H Absyn.H
-	${CC} ${CCFLAGS} -c CustomTypesParser.C
+CustomTypesParser.o: CustomTypesParser.cpp CustomType.h Absyn.H
+	${CC} ${CCFLAGS} -c CustomTypesParser.cpp
 	
-CustomType.o: CustomType.C
-	${CC} ${CCFLAGS} -c CustomType.C
+CustomType.o: CustomType.cpp
+	${CC} ${CCFLAGS} -c CustomType.cpp
 
-XMLGenerator.o: XMLGenerator.C XMLGenerator.H Absyn.H CustomTypesParser.H CustomType.H
-	${CC} ${CCFLAGS} -c XMLGenerator.C
+XMLGenerator.o: XMLGenerator.cpp XMLGenerator.h Absyn.H CustomTypesParser.h CustomType.h
+	${CC} ${CCFLAGS} -c XMLGenerator.cpp
 
-GenerateXML.o: GenerateXML.C Parser.H Printer.H Absyn.H XMLGenerator.H
-	${CC} ${CCFLAGS} -c GenerateXML.C
+GenerateXML.o: GenerateXML.cpp Parser.H Printer.H Absyn.H XMLGenerator.h
+	${CC} ${CCFLAGS} -c GenerateXML.cpp
 

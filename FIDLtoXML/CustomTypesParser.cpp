@@ -10,7 +10,7 @@
 // - Enums (including extending other enums as well as assigning values to enum members)
 //
 
-#include "CustomTypesParser.H"
+#include "CustomTypesParser.h"
 #include <sstream> 
 #include <iostream>
 #include <stdio.h>
@@ -131,8 +131,8 @@ std::vector<CustomType> CustomTypesParser::parseUnfinishedList(std::vector<Custo
             if (isFinished) {
             
                 if (it->getType() == FRANCA_ENUM) {
-                // if enum, set value/dbussignature to u.
-                    it->setDBusSign("u");
+                // if enum, set value/dbussignature to i.
+                    it->setDBusSign("i");
                 // Also, add any enum members of the extended enum.    
                     for (std::vector<CustomType>::iterator f_it = finished.begin(); f_it != finished.end(); ++f_it) {
                         if (f_it->getName().compare(it->getEnumExtends()) == 0) {

@@ -4,7 +4,7 @@
 #include "Absyn.H"
 #include "Parser.H"
 
-#include "CustomType.H"
+#include "CustomType.h"
 
 #include <string>
 #include <vector>

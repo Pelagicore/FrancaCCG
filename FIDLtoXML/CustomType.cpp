@@ -1,4 +1,4 @@
-#include "CustomType.H"
+#include "CustomType.h"
 #include <stdlib.h>
 #include <iostream>
 

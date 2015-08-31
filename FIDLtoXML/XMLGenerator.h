@@ -2,8 +2,8 @@
 #define XMLGENERATOR_HEADER
 
 #include "Absyn.H"
-#include "CustomTypesParser.H"
-#include "CustomType.H"
+#include "CustomTypesParser.h"
+#include "CustomType.h"
 
 #include <stdio.h>
 #include <string.h>
