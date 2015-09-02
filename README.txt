@@ -1,7 +1,10 @@
-Developed by Jesper Lundkvist
-jesperlundkvist@gmail.com
+Originally developed by Jesper Lundkvist <jesperlundkvist@gmail.com>
+Part of Master Thesis conducted at Pelagicore during spring 2015
 
-Developed as part of Master Thesis conducted at Pelagicore during spring 2015
+Currently supports subset of Franca IDL only!
+See fidl/MediaIndexer/ for example of supported features.
+
+
 
 
 ---PREREQUISITIES---
