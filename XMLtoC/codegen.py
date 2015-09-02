@@ -19,6 +19,7 @@
 #
 # Author: David Zeuthen   <davidz@redhat.com>
 #  (2014) Jonatan Palsson <jonatan.palsson@pelagicore.com>
+#  (2015) Jesper Lundkvist  <jesperlundkvist@gmail.com>
 
 import sys
 
