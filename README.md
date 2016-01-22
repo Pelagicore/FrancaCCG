@@ -1,9 +1,9 @@
-Originally developed by Jesper Lundkvist <jesperlundkvist@gmail.com>
-Part of Master Thesis conducted at Pelagicore AB during spring 2015
+# About
 
-Currently supports subset of Franca IDL only!
+FrancaCCG (Franca C Code Generator) is a code generator suite for the Franca Interface Definition Language, runnable from the command line and producing C server stubs and proxies using the GDBus library. Originally developed by Jesper Lundkvist <jesperlundkvist@gmail.com> as part of Master Thesis conducted at Pelagicore AB during spring 2015
+
+#### Currently supports subset of Franca IDL only!
 See fidl/MediaIndexer/ for example of supported features.
-
 
 
 # Prerequisites (software requirements)
