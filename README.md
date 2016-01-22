@@ -6,15 +6,15 @@ See fidl/MediaIndexer/ for example of supported features.
 
 
 
-# PREREQUISITIES
+# Prerequisites (software requirements)
 
 BNFC 2.7.1 (older probably works as well)
 GCC (latest version)
-Bison 1.75 (version important! Newer not compatible with BNFC)
+Bison 1.75 (version important! Newer versions incompatible with BNFC)
 Flex 2.5.4 (version probably important)
 
 
-# USAGE
+# Usage
 
 Compile the code generators with ./compile.sh 
 
